@@ -13,6 +13,10 @@
 [![Last Commit](https://img.shields.io/github/last-commit/pen-ll/ai-team)](https://github.com/pen-ll/ai-team/commits)
 [![Stars](https://img.shields.io/github/stars/pen-ll/ai-team?style=social)](https://github.com/pen-ll/ai-team/stargazers)
 
+<br/>
+
+[简介](#一简介) · [能力总览](#二能力总览) · [通用与开发领域](#三通用与开发领域) · [流程](#四流程) · [主要功能](#五主要功能) · [角色协作](#六角色协作) · [典型场景](#七典型场景) · [Skill 清单](#八skill-清单) · [安装 & 使用](#九安装--使用) · [推荐模型](#十推荐模型) · [已知权衡](#十一已知权衡) · [扩展指南](#十二扩展指南新增领域与平台) · [参与贡献](#十三参与贡献) · [许可证](#十四许可证)
+
 </div>
 
 ---
@@ -121,7 +125,7 @@ flowchart TB
 
 | 维度 | 通用 · `ai-team`（generic） | 开发 · `ai-team-dev`（development） |
 |------|---------------------------|-----------------------------------|
-| 入口 | `ai-team` | `ai-team-dev` |
+| 加载方式 | **总入口**——所有任务先经内核判定领域并路由 | 由内核领域路由 `use_skill` 委托加载，完整接管开发场景 |
 | 适用 | 写作、策划、调研、决策分析、方案评审等任意复杂任务 | 编码、开发、功能、模块、页面、bug、崩溃、重构、App、小程序等 |
 | 角色来源 | **动态推导**（`role-composer`，从子目标所需视角反推） | **固定四角色**（需求策划 / 开发 / 测试 / 审查） |
 | 预设角色 | 仅需求分析者（可选启用） | designer，可选启用 |
@@ -131,7 +135,7 @@ flowchart TB
 | 产出目录 | `docs/ai-team/{任务标识}/` | `docs/ai-team-dev/{任务标识}/` |
 | 团队命名 | `ai-team-{timestamp}` | `ai-team-dev-{timestamp}` |
 
-> `[门禁]` 开发领域关键词优先命中 `ai-team-dev`；若两入口同时命中，`ai-team` 的领域路由会把开发场景委托回 `ai-team-dev`，形成闭环、不冲突。
+> `ai-team` 是**总入口**——开发领域关键词也由它接住，再由内核领域路由 `use_skill ai-team-dev` 委托给开发领域 PM，由后者完整接管。
 
 ### 3.2 扩展方式
 
@@ -451,9 +455,11 @@ sequenceDiagram
 
 ---
 
-## 九、安装
+## 九、安装 & 使用
 
-### 9.1 获取仓库
+### 安装
+
+#### 获取仓库
 
 ```bash
 # HTTPS（推荐，任何网络环境都能用，无需配置密钥）
@@ -463,7 +469,7 @@ git clone https://github.com/pen-ll/ai-team.git
 git clone git@github.com:pen-ll/ai-team.git
 ```
 
-### 9.2 安装到 AI IDE
+#### 安装到 AI IDE
 
 本仓库是 **Markdown Skill 包**（每个目录一个 `SKILL.md`），无运行时依赖、无构建步骤。**安装 = 把 `ai-team-*` 目录整体拷贝到所用 AI IDE 的 skills 目录**，IDE 读取 frontmatter 的 `description` 自动判断加载时机。
 
@@ -483,7 +489,7 @@ git clone git@github.com:pen-ll/ai-team.git
 > 其他支持 `SKILL.md` 的 IDE 同理——把 skill 目录放进各自的 skills 目录即可，具体路径以其官方文档为准。
 > Codex 早期版本与旧工具链仍写入 `~/.codex/skills/`（`$CODEX_HOME/skills`），该目录为兼容入口，建议以 `~/.agents/skills/` 为准。
 
-### 9.3 拷贝命令
+#### 拷贝命令
 
 **macOS / Linux**
 
@@ -534,7 +540,7 @@ Copy-Item -Recurse ai-team* "$HOME\.agents\skills\"
 | 软件开发 | 上述 + `ai-team-dev` + `ai-team-dev-role-designer` |
 | 鸿蒙开发 | 上述 + `ai-team-pt-hm-*` |
 
-### 9.4 frontmatter 兼容性
+#### frontmatter 兼容性
 
 | 字段 | 说明 |
 |------|------|
@@ -544,14 +550,26 @@ Copy-Item -Recurse ai-team* "$HOME\.agents\skills\"
 
 > 若要通过**严格校验字段的渠道**分发（如 claude.ai skill 上传、Skills API 打包），需先按该渠道允许的字段裁剪 frontmatter。
 
-### 9.5 触发方式
+### 使用
 
-在 AI IDE 对话中直接描述需求即可自动触发：
+两种方式，任选其一：
 
-| 入口 | 聚焦关键词 |
-|------|-----------|
-| `ai-team` | 复杂问题、多角色、多专家、帮我分析 / 策划 / 调研 / 评审 |
-| `ai-team-dev` | 编码、开发、功能、模块、页面、bug、崩溃、报错、重构、App、小程序、HarmonyOS |
+| 方式 | 操作 | 说明 |
+|------|------|------|
+| **选择 skill（推荐）** | 在对话中选中 `ai-team` skill，再描述需求 | 最稳妥，不依赖关键词匹配 |
+| **自动触发** | 直接在对话中描述需求，描述里含触发词时自动触发 `ai-team` | 更省事，需要命中关键词 |
+
+**触发词**：复杂问题、多角色、多专家、帮我分析 / 策划 / 调研 / 评审、编码、开发、功能、模块、页面、bug、崩溃、报错、重构、App、小程序、HarmonyOS。
+
+入口只有 `ai-team` 一个，它负责领域判定与路由：命中已注册领域则委托对应领域 PM（开发场景 → `ai-team-dev`），未命中则走通用动态编排。其余 skill（领域 PM / 角色 / 工具 / 平台特化）由 PM 按门禁加载，不需要手动选择。
+
+```
+# 方式一：先选 ai-team skill，再描述需求（最稳妥）
+把 X 模块重构成 Y 架构
+
+# 方式二：不选 skill，描述里带触发词自动触发
+帮我分析一下这个方案的风险
+```
 
 > 使用者的介入点通常只有两处：**回答需求角色的提问 → 确认 PM 的汇总结果**。其余编码、编译、测试、审查按流程自动流转。
 
