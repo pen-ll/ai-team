@@ -88,7 +88,7 @@ ai-team（领域无关内核 / 总 PM）
 | 安全与合规 | 死循环检测阈值、黑灰产/供应链攻击红线、敏感信息保护、依赖安装确认 | `ai-team-tool-security` · `ai-team-pt-hm-arkts-security` |
 | 调试与排障 | 定位手段成本分级、协作调试循环、平台日志读取 | `ai-team-tool-debug-loop` |
 | 协作与交互 | 选项按钮规范、跨角色消息、报告事实源、冲突兜底、风险提示、用户协作成本优先 | `ai-team-tool-global-rule` · `ai-team-tool-report` |
-| 平台适配与规范 | 平台映射表、DevEco 路径探测、签名检查、设备错误码、ArkTS 编码/性能/安全规范 | `ai-team-dev/platform-map.md` · `ai-team-pt-hm-build` · `ai-team-pt-hm-arkts-coding-rules` · `ai-team-pt-hm-arkts-performance` · `ai-team-pt-hm-arkts-security` · `ai-team-pt-hm-reviewer` |
+| 平台适配与规范 | 平台映射表、DevEco 路径探测、签名检查、设备错误码、ArkTS 编码/性能/安全规范 | `skills/ai-team-dev/platform-map.md` · `ai-team-pt-hm-build` · `ai-team-pt-hm-arkts-coding-rules` · `ai-team-pt-hm-arkts-performance` · `ai-team-pt-hm-arkts-security` · `ai-team-pt-hm-reviewer` |
 | 自我优化 | 静默自检、优化建议汇总、变更日志维护 | `ai-team-tool-auto-tune` |
 
 ### 2.2 分层架构
@@ -107,8 +107,8 @@ flowchart TB
 
 | 层 | 职责 | 关键文件 |
 |----|------|----------|
-| ① 通用内核 | 领域识别、路由、PM 编排、动态角色推导、通用置信度门禁 | `ai-team/SKILL.md`、`ai-team/domain-map.md` |
-| ② 领域层 | 该领域的流程编排、角色映射、产出物规范 | `ai-team-dev/SKILL.md`、`ai-team-dev/platform-map.md` |
+| ① 通用内核 | 领域识别、路由、PM 编排、动态角色推导、通用置信度门禁 | `skills/ai-team/SKILL.md`、`skills/ai-team/domain-map.md` |
+| ② 领域层 | 该领域的流程编排、角色映射、产出物规范 | `skills/ai-team-dev/SKILL.md`、`skills/ai-team-dev/platform-map.md` |
 | ③ 角色层 | 各角色的本职工作流与置信度自评 | `ai-team-role-*`、`ai-team-dev-role-designer` |
 | ④ 平台特化层 | 覆盖/补充通用角色的平台相关步骤 | `ai-team-pt-hm-*` |
 | ⑤ 工具层 | 跨领域通用能力（约束、文档、安全、调试、优化等） | `ai-team-tool-*` |
@@ -141,8 +141,8 @@ flowchart TB
 
 | 扩展目标 | 操作 | 影响范围 |
 |----------|------|----------|
-| 新增领域 | `ai-team/domain-map.md` 加一行：`\| 标识 \| 名称 \| use_skill {领域PM} \| 触发特征 \|` | 内核零改动 |
-| 新增平台 | `ai-team-dev/platform-map.md` 加一行（coder/tester/reviewer 三列可留空），并在 `ai-team-dev-role-designer` 的平台识别表补关键词 | 通用角色零改动 |
+| 新增领域 | `skills/ai-team/domain-map.md` 加一行：`\| 标识 \| 名称 \| use_skill {领域PM} \| 触发特征 \|` | 内核零改动 |
+| 新增平台 | `skills/ai-team-dev/platform-map.md` 加一行（coder/tester/reviewer 三列可留空），并在 `ai-team-dev-role-designer` 的平台识别表补关键词 | 通用角色零改动 |
 
 完整步骤（目录结构、frontmatter、产出路径、验证方式）见 [十二、扩展指南](#十二扩展指南新增领域与平台)。
 
@@ -497,7 +497,7 @@ git clone git@github.com:pen-ll/ai-team.git
 
 ```bash
 git clone https://github.com/pen-ll/ai-team.git
-cd ai-team
+cd ai-team/skills
 
 # CodeBuddy（用户级）
 mkdir -p ~/.codebuddy/skills && cp -r ai-team* ~/.codebuddy/skills/
@@ -515,7 +515,7 @@ mkdir -p ~/.agents/skills && cp -r ai-team* ~/.agents/skills/
 
 ```powershell
 git clone https://github.com/pen-ll/ai-team.git
-Set-Location ai-team
+Set-Location ai-team\skills
 
 # CodeBuddy（用户级）
 New-Item -ItemType Directory -Force "$HOME\.codebuddy\skills" | Out-Null
@@ -615,11 +615,11 @@ Copy-Item -Recurse ai-team* "$HOME\.agents\skills\"
 **步骤 1 · 创建领域 PM skill**
 
 ```
-ai-team-dom-data/
+skills/ai-team-dom-data/
 └── SKILL.md
 ```
 
-`SKILL.md` 的 frontmatter 与结构参考 `ai-team-dev/SKILL.md`：
+`SKILL.md` 的 frontmatter 与结构参考 `skills/ai-team-dev/SKILL.md`：
 
 ```yaml
 ---
@@ -636,13 +636,13 @@ description: |
 
 **步骤 2 · 在领域注册表注册**
 
-编辑 `ai-team/domain-map.md`，在「注册表」表格新增一行：
+编辑 `skills/ai-team/domain-map.md`，在「注册表」表格新增一行：
 
 ```
 | data | 数据分析 | use_skill ai-team-dom-data | 数据分析、报表、指标、看板、SQL 等 |
 ```
 
-> **同步要求**：注册前确认该领域 PM skill 已存在，且触发关键词不与现有领域冲突（见 `ai-team/SKILL.md` 的「触发协调」章节）。
+> **同步要求**：注册前确认该领域 PM skill 已存在，且触发关键词不与现有领域冲突（见 `skills/ai-team/SKILL.md` 的「触发协调」章节）。
 
 **步骤 3 · 隔离产出物**
 
@@ -671,7 +671,7 @@ description: |
 
 **步骤 1 · 在平台映射表注册**
 
-编辑 `ai-team-dev/platform-map.md` 新增一行（某角色无需特化则该列**留空**，留空表示由 AI 自行发挥）：
+编辑 `skills/ai-team-dev/platform-map.md` 新增一行（某角色无需特化则该列**留空**，留空表示由 AI 自行发挥）：
 
 ```
 | flutter | ai-team-pt-fl-coder | ai-team-pt-fl-tester | ai-team-pt-fl-reviewer |
@@ -679,7 +679,7 @@ description: |
 
 **步骤 2 · 编写平台特化 skill**
 
-- 目录：`ai-team-pt-{平台缩写}-{role}/SKILL.md`，frontmatter 参考 `ai-team-pt-hm-coder/SKILL.md`
+- 目录：`skills/ai-team-pt-{平台缩写}-{role}/SKILL.md`，frontmatter 参考 `skills/ai-team-pt-hm-coder/SKILL.md`
 - 正文结构：`## 触发`（`platform={平台}`）→ `## 覆盖范围`（表格：通用步骤 → 平台特化行为）→ `## 平台特化流程`
 - **只写「覆盖/补充」**：通用流程仍由 `ai-team-role-*` 提供，特化 skill 不重复实现
 
