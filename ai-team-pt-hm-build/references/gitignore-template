@@ -1,0 +1,16 @@
+**/node_modules
+**/dist
+**/oh_modules
+/local.properties
+**/build
+**/.test
+**/BuildProfile.ets
+**/generated
+.cxx
+.hvigor
+.clangd
+.clang-format
+.clang-tidy
+.appanalyzer
+.idea
+.codebuddy

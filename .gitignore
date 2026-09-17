@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# AI Agent 运行时产出（需求报告 / 开发报告 / 测试报告 / 审查报告等）
+docs/ai-team/
+docs/ai-team-dev/
+web-req-assets/
+
+# 临时目录（项目初始化等工作区中间产物）
+.temp-project-init/
+
+# 依赖与构建产物
+node_modules/
+build/
+dist/
+*.log
