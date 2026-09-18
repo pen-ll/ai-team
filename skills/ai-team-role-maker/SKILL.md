@@ -192,6 +192,7 @@ send_message(type="message", recipient="main",
 | 与 reviewer 无法一致 | 报 planner 裁决（口径权在 planner） |
 | 说明实现要点 | 可主动 `send_message` 给对应 reviewer 实例 |
 | 需求 / 口径疑问 | 直接 `ask_followup_question` 问用户，或报 planner |
+| **返工计数（[门禁]）** | 每次因 reviewer / tester 反馈而**修改产出或报告** → 按 `global-rule` §十二 计数，并在回信中携带 `返工轮次: {N}/5`；**N ≥ 5 → 立即停止一切修订与返工**，`send_message` 上报编排方等待用户裁决 |
 
 ## 配置
 

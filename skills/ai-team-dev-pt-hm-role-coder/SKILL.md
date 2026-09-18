@@ -25,7 +25,7 @@ description: |
 | 第三步：技术选型 | 替换为鸿蒙专用选型（状态管理 V1/V2、数据存储、编码模板） |
 | 第四步：编码执行 | 补充 V2 装饰器规则 + UI 布局自检 |
 | 第四步-A：语法校验 | 替换为 DevEco MCP LSP 校验流程 |
-| 第五步：编译验证 | 替换为 `ai-team-dev-pt-hm-build` 编译 |
+| 第五步：编译验证 + 最小冒烟自验 | 编译替换为 `ai-team-dev-pt-hm-build` 编译；最小冒烟自验见下文「最小冒烟自验」 |
 | 第七步：置信度评估 | 补充 MCP LSP / 性能反模式等鸿蒙特有检查项 |
 
 ## 鸿蒙特化流程
@@ -223,6 +223,22 @@ use_skill ai-team-dev-pt-hm-build
 ```
 
 编译失败则按 `ai-team-dev-pt-hm-build` 中的诊断流程修复，直至 BUILD SUCCESSFUL。
+
+### 最小冒烟自验（补充通用 coder 第五步）
+
+编译 BUILD SUCCESSFUL 后，安装产物并启动，**核心流程走通一次**（证明产物可用，而非仅可编译）：
+
+| # | 步骤 | 命令 |
+|---|------|------|
+| 1 | 确认设备 | `hdc list targets`（无输出 → `ask_followup_question` 让用户连接设备） |
+| 2 | 安装 signed HAP | `hdc install -r <module>/build/default/outputs/default/<module>-default-signed.hap`（只有 unsigned → 走 build skill 签名检查） |
+| 3 | **[门禁] 强制重启进程** | `hdc shell aa force-stop <bundleName>` → `hdc shell aa start -a EntryAbility -b <bundleName>`（`install -r` 不保证杀进程，不重启会跑旧代码） |
+| 4 | 唤醒设备 | `hdc shell "power-shell wakeup"`（`aa start` 返回 `10106102` = 屏锁 → `ask_followup_question` 让用户解锁） |
+| 5 | 清缓冲并驱动一次核心链路 | `hdc shell hilog -r` → 手动链路走通一次（无需自动化脚本）→ `hdc shell hilog -b D` 可放开级别 |
+| 6 | 崩溃扫描 | `hdc shell hilog -x -n 2000`，grep `jserror\|Exception`，匹配数应为 0（排除系统噪声） |
+
+> **[门禁] 只冒烟、不写测试**：本步骤**不编写测试代码、不建 `ohosTest` 目录、不产测试用例** —— 单元测试与 UI 自动化均归 tester 维度（其目录结构与命令见 `ai-team-dev-pt-hm-role-tester` / `ai-team-dev-pt-hm-ui-test`）。
+> **无设备 / 无法安装**：如实登记「未做冒烟自验（原因）」，继续后续流程，**不得伪造**。
 
 ### 置信度评估（补充通用 coder 第七步）
 

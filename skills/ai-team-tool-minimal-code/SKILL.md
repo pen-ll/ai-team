@@ -5,7 +5,7 @@ trigger: route-only
 user-invocable: false
 description: |
   AI 多 Agent 协同的合理极简编码规范，含懒惰阶梯、根因修复与过度设计审查（delete/stdlib/native/yagni/shrink）。
-  触发场景：coder/reviewer 编码或审查时按需加载，跨平台通用。
+  触发场景：编码或审查场景按需加载，跨平台通用。
 ---
 
 # 极简编码规范
@@ -80,7 +80,7 @@ description: |
 
 ---
 
-## 五、过度设计审查（reviewer 使用）
+## 五、过度设计审查（审查场景）
 
 对 diff 或全仓库做过度设计审查，只猎复杂度，逐条一行输出：
 

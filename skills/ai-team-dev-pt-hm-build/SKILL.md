@@ -131,8 +131,7 @@ DEVECO_SDK_HOME=<sdk_path> <node_path> <hvigorw_path> \
 4. 修根因，不修症状：
    症状修复（❌）：编译报错 ArkUI 组件不存在 → 删除该组件引用
    根因修复（✅）：缺少对应模块依赖 → 在 oh-package.json5 中添加依赖
-5. 补单元测试覆盖该编译错误场景（如导入路径、API 版本校验）
-6. clean build + 全量测试通过后再继续下一阶段
+5. clean build 通过后继续下一阶段（受影响范围的回归验证不属本 skill 职责）
 ```
 
 ### 定位策略
