@@ -50,9 +50,10 @@ cd /tmp && npx playwright --version 2>/dev/null || (npm init -y && npm install p
 
 ```bash
 [ -f /tmp/run-extract.mjs ] || cp {skills_dir}/ai-team-tool-web-read/extract.mjs /tmp/run-extract.mjs
-cd /tmp && node run-extract.mjs "{url}" "{workspaceFolder}/docs/ai-team-dev/{任务标识}" [cookie文件路径]
+cd /tmp && node run-extract.mjs "{url}" "{output_dir}" [cookie文件路径]
 ```
 
+> `{output_dir}` 由调用方经 **`output_dir` 参数**注入（**不得硬编码领域路径**）；调用方通常传 `{artifact_dir}`。
 > 复制到 `/tmp` 是因为 playwright 包安装在该目录，ESM 模块需在同级或子级 `node_modules` 下解析。
 
 脚本功能（单次执行完成所有提取，不拆步子）：
@@ -67,7 +68,7 @@ cd /tmp && node run-extract.mjs "{url}" "{workspaceFolder}/docs/ai-team-dev/{任
 
 ### 步骤 3：转换为 Markdown + 产出文档
 
-读取 `/tmp/web-read-result.json`，转换为 Markdown 写入 `${workspaceFolder}/docs/ai-team-dev/{任务标识}/web-req-report.md`：
+读取 `/tmp/web-read-result.json`，转换为 Markdown 写入 `{output_dir}/web-req-report.md`：
 
 **多页面（Axure）**：
 ```markdown

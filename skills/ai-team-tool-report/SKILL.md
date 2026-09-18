@@ -24,6 +24,7 @@ description: |
 |------|--------------|
 | 通用（`领域=generic`） | `docs/ai-team/{任务标识}` |
 | 开发（`领域=development`） | `docs/ai-team-dev/{任务标识}` |
+| 写作（`领域=writing`） | `docs/ai-team-write/{任务标识}` |
 
 > artifact 目录（`brain/xxx/docs/...`）仅作为临时工作区，不应作为最终产出物路径。
 
@@ -48,10 +49,10 @@ mkdir -p ${workspaceFolder}/{artifact_dir}
 ```markdown
 ## 元信息
 - 角色：{角色名}
-- 领域：{generic/development}
+- 领域：{generic/development/writing}
 - 平台/环境：{harmony/ios/android/web/server/...}   仅开发领域
-- 任务标识：{slug}-{YYMMDD}（如 refactor-260901）
-- 需求来源：{artifact_dir}/designer-report.md
+- 任务标识：{slug}-{YYMMDD}（如 refactor-260901）   取自注入参数 `task_id`
+- 需求来源：{本次上游产出路径}（`generic` / `development` 为 `designer-report.md`；`writing` 为 `editor-report.md` 的基调卡章节）
 - 生成时间：{timestamp}
 - 置信度：{XX}%
 ```
@@ -103,6 +104,18 @@ mkdir -p ${workspaceFolder}/{artifact_dir}
 
 元信息 + 交付前检查清单 + 启动验证 + 交付物清单 + 总结
 
+### 写作领域（`领域=writing`）
+
+| 报告 | 内容 |
+|------|------|
+| `editor-report.md` | 元信息 + 基调卡 + 裁决记录 + 阶段终审结论 |
+| `writer-report.md` | 元信息 + 本批章节清单（章号 / 字数 / brief 路径 / 主台账是否登记）+ 伏笔动作清单 + 已知限制 |
+| `critic-report-ch{N}.md` | 元信息 + 七维判定 + 结构门禁结果 + 分级问题清单（P0 / P1 / P2） |
+| `reader-report-ch{N}.md` | 元信息 + 该口味评分表 + 加权得分 + 一票否决 / 封顶判定 + 感受证据 |
+| `market-report.md` | 元信息 + 对标表 + 雷同度定级 + 差异化定位 + 规避清单 |
+
+> 写作领域的**设定集为多文件资产**（`world.md` / `characters.md` / `outline.md` / `foreshadow.md` / `voice.md`），由设定设计师产出、非单一报告——上表元信息块仅用于各角色的 `*-report.md`。
+
 ---
 
 ## 四、格式规范
@@ -135,6 +148,17 @@ mkdir -p ${workspaceFolder}/{artifact_dir}
 | coder（多任务） | 单任务技术方案 | `{artifact_dir}/coder-report-task-{N}.md` |
 | tester | 测试报告 | `{artifact_dir}/tester-report.md` |
 | reviewer | 交付报告 | `{artifact_dir}/reviewer-report.md` |
+
+### 写作领域
+
+| 角色 / 变体 | 产出物 | 路径 |
+|-------------|--------|------|
+| editor（计划者） | 基调卡与裁决记录 | `{artifact_dir}/editor-report.md` |
+| architect（计划者） | 设定集与大纲五件套 | `{artifact_dir}/world.md` · `characters.md` · `outline.md` · `foreshadow.md` · `voice.md` |
+| writer（实现者） | 正文 / 章节精简 / 改稿台账 / 断点台账 | `{artifact_dir}/chapters/ch-{N}.md` · `briefs/ch-{N}.brief.md` · `chapter-changelog.md` · `progress.md` · `writer-report.md` |
+| critic（审查者） | 审稿报告 | `{artifact_dir}/critic-report-ch{N}.md` |
+| reader（审查者 · 按口味各一实例） | 读者评分报告 | `{artifact_dir}/reader-report-ch{N}.md` |
+| market / commercial（审查者） | 竞品 / 商业评估 | `{artifact_dir}/market-report.md` · `commercial-report.md` |
 
 > 多任务模式（需求文档含 `## 任务清单`）命名约定：
 > - coder 每任务产出 `coder-report-task-{N}.md`，全部完成后汇总为 `coder-report.md`

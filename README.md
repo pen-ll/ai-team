@@ -7,15 +7,16 @@
 把复杂任务拆给多个角色 Agent 接力完成：独立会话、交叉校验、置信度门禁、领域与平台均可插拔。
 
 [![License](https://img.shields.io/badge/License-MIT-yellow)](./LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-28-blue)](#八skill-清单)
-[![Domains](https://img.shields.io/badge/Domains-2%20built--in%20%2B%20extensible-purple)](#13-已内置领域与平台)
+[![Version](https://img.shields.io/badge/Version-2.0-green)](#12-版本历史)
+[![Skills](https://img.shields.io/badge/Skills-37-blue)](#八skill-清单)
+[![Domains](https://img.shields.io/badge/Domains-dev%20%C2%B7%20writing%20%2B%20generic-purple)](#13-已内置领域与平台)
 [![Platform](https://img.shields.io/badge/Platform-HarmonyOS-orange)](#13-已内置领域与平台)
 [![Last Commit](https://img.shields.io/github/last-commit/pen-ll/ai-team)](https://github.com/pen-ll/ai-team/commits)
 [![Stars](https://img.shields.io/github/stars/pen-ll/ai-team?style=social)](https://github.com/pen-ll/ai-team/stargazers)
 
 <br/>
 
-[简介](#一简介) · [能力总览](#二能力总览) · [通用与开发领域](#三通用与开发领域) · [流程](#四流程) · [主要功能](#五主要功能) · [角色协作](#六角色协作) · [典型场景](#七典型场景) · [Skill 清单](#八skill-清单) · [使用 & 安装](#九使用--安装) · [推荐模型](#十推荐模型) · [已知权衡](#十一已知权衡) · [扩展指南](#十二扩展指南新增领域与平台) · [参与贡献](#十三参与贡献) · [许可证](#十四许可证)
+[简介](#一简介) · [能力总览](#二能力总览) · [通用与领域](#三通用内核与已内置领域) · [流程](#四流程) · [主要功能](#五主要功能) · [角色协作](#六角色协作) · [典型场景](#七典型场景) · [Skill 清单](#八skill-清单) · [使用 & 安装](#九使用--安装) · [推荐模型](#十推荐模型) · [已知权衡](#十一已知权衡) · [扩展指南](#十二扩展指南新增领域与平台) · [参与贡献](#十三参与贡献) · [许可证](#十四许可证)
 
 </div>
 
@@ -45,12 +46,15 @@ ai-team（领域无关内核 / 总 PM）
    │  领域识别 → domain-map.md 路由
    ├─ development → ai-team-dev（软件开发领域 PM，完整接管）
    │                   └─ 平台识别 → platform-map.md 路由
-   │                        └─ harmony → ai-team-pt-hm-*（鸿蒙平台特化）
+   │                        └─ harmony → ai-team-dev-pt-hm-*（鸿蒙平台特化）
+   ├─ writing     → ai-team-write（写作领域 PM，完整接管）
+   │                   └─ 形态识别 → form-map.md 路由
+   │                        └─ long → ai-team-write-pt-long（长篇形态特化）
    ├─ generic     → 内核内置通用动态编排
-   └─ 未来领域    → 挂载新领域 PM（ai-team-dom-{领域}）
+   └─ 未来领域    → 挂载新领域 PM（零改动内核）
 ```
 
-> **PS**：`ai-team` 展望不仅仅是软件开发。开发只是**当前已内置的第一个领域**；内核本身不含任何领域逻辑，新增领域（如写作、调研、数据分析、方案评审）只需按注册表格式加一行，内核与通用角色零改动。
+> **PS**：`ai-team` 不限于软件开发。内核本身不含任何领域逻辑，新增领域（调研、数据分析、方案评审、法律、教育…）只需在 `domain-map.md` 加一行 + 提供一个领域 PM skill，**内核与通用角色零改动**。目前内置的两个领域横跨「工程」与「创作」两种性质——用于验证这套扩展方式对异质领域同样成立。
 
 ### 1.1 与单 Agent 方式的对比
 
@@ -63,7 +67,7 @@ ai-team（领域无关内核 / 总 PM）
 | 沟通链路 | — | 角色间 `send_message` 直连，问题不经 PM 中转 |
 | 成本 | 低 | 独立会话 + skill 加载，简单任务可能会稍微增加Token（已对简单任务优化） |
 
-> 因此引入**复杂度路由**：简单改动走轻量流程，复杂需求才拉起完整角色链，不做一刀切。
+> 因此改为**用户多选编排**：角色清单由用户在编排弹窗中勾选（PM 按需求特征给出预勾选推荐），需要哪些视角就拉哪些角色，不做一刀切。
 
 ### 1.2 设计原则
 
@@ -79,11 +83,23 @@ ai-team（领域无关内核 / 总 PM）
 
 | 层级 | 标识 | 承载 | 说明 |
 |------|------|------|------|
-| 领域 | `generic` | 内核内置流程 | 未命中任何已注册领域时的兜底： <br> PM 现场推导角色组合（写作、策划、调研、决策分析、方案评审等） |
-| 领域 | `development` | `ai-team-dev` | 软件开发：需求策划 → 开发 → 测试 → 审查， <br> 含轻量/标准/完整三档复杂度路由 |
-| 平台 | `harmony` | `ai-team-pt-hm-*` | 鸿蒙开发：状态管理 V1/V2 选型、 <br> MCP LSP 语法校验、ohosTest、真机 UI 自动化测试、hdc 启动验证、DevEco 构建与项目初始化 |
+| 领域 | `development` | `ai-team-dev` | 软件开发：计划 → 实现 → 审查（维度多实例）， <br> 角色由用户多选，**无复杂度档位** |
+| 领域 | `writing` | `ai-team-write` | 小说 / 网文 / 文章创作：主编 → 设定 → 执笔 → 审稿 → 多口味读者团， <br> 按 S0-S4 创作阶段路由 |
+| 领域 | `generic` | 内核内置流程 | 未命中任何已注册领域时的兜底： <br> PM 现场推导角色组合（策划、调研、决策分析、方案评审等） |
+| 平台 | `harmony` | `ai-team-dev-pt-hm-*` | 鸿蒙开发：状态管理 V1/V2 选型、 <br> MCP LSP 语法校验、ohosTest、真机 UI 自动化测试、hdc 启动验证、DevEco 构建与项目初始化 |
 
 ---
+
+### 1.2 版本历史
+
+框架采用**统一版本号**——不是单个 skill 的版本，而是整套框架（内核 + 全部领域 + 全部角色）的版本；版本号同时标注在三个编排入口（`ai-team` / `ai-team-dev` / `ai-team-write`）的正文顶部。
+
+| 版本 | 范围 | 主题 | 关键变化 |
+|------|------|------|----------|
+| **2.0** | 2026-09-18 起 | **领域无关化 + 角色层通配化重构** | 第二个**异质领域**（写作）落地；角色层收敛为**三角色原型**（`planner` / `maker` / `reviewer`）+ 领域扩展，**废除「轻量 / 标准 / 完整」硬路由**改为**用户多选编排**；审查者按**维度多实例**并行、互不合并；领域标准资产化（`standards/` 作单一事实源） |
+| **1.0** | ～ 2026-09-17 | **开发领域起步** | 内核 + 开发双领域；固定四角色接力；复杂度三档硬路由；鸿蒙平台特化层 |
+
+> 完整变更记录见 [`CHANGELOG.md`](./CHANGELOG.md)（已按版本分节）。
 
 ## 二、能力总览
 
@@ -91,62 +107,73 @@ ai-team（领域无关内核 / 总 PM）
 
 | 能力域 | 已实现能力 | 承载 Skill |
 |--------|-----------|-----------|
-| 需求与澄清 | 意图澄清（who/why/success/constraint）、主动穷举确认、需求结构化、角色规模适配检查、任务拆分、网页需求读取 | `ai-team-role-designer` · `ai-team-dev-role-designer` <br> · `ai-team-tool-web-read` |
-| 编排与调度 | 领域路由、动态角色推导、复杂度路由、团队调整、全自动/手动确认、会话回收 | `ai-team` · `ai-team-dev` · `ai-team-tool-role-composer` |
-| 实现与工程 | 技术选型、编码实现、语法校验、编译构建、极简编码、UI 四态与防抖、项目初始化 / 模块创建 / 依赖预装 / 编码模板 | `ai-team-role-coder` · `ai-team-pt-hm-coder` <br>  · `ai-team-tool-minimal-code` · `ai-team-tool-ui-ux` <br>  · `ai-team-pt-hm-build` · `ai-team-pt-hm-project-init` <br>  · `ai-team-pt-hm-project-module-init`  <br> · `ai-team-pt-hm-project-package-init` <br>  · `ai-team-pt-hm-template-v2` |
-| 测试与验证 | 单元测试（ohosTest）、边界维度清单、结论有效性校验、环境条件门禁、真机 UI 黑盒自动化、启动验证 | `ai-team-role-tester` · `ai-team-pt-hm-tester` <br>  · `ai-team-pt-hm-ui-test` · `ai-team-pt-hm-reviewer` |
+| 需求与澄清 | 意图澄清（who/why/success/constraint）、主动穷举确认、需求结构化、角色清单适配检查、任务拆分、网页需求读取 | `ai-team-role-planner` · `ai-team-dev-role-designer` <br> · `ai-team-tool-web-read` |
+| 编排与调度 | 领域路由、动态角色推导、**角色多选编排**（按原型分组）、团队调整、审查维度多实例、全自动/手动确认、会话回收 | `ai-team` · `ai-team-dev` · `ai-team-write` · `ai-team-tool-role-composer` |
+| 实现与工程 | 技术选型、编码实现、语法校验、编译构建、极简编码、UI 四态与防抖、项目初始化 / 模块创建 / 依赖预装 / 编码模板 | `ai-team-role-maker` · `ai-team-dev-role-coder` <br>  · `ai-team-dev-pt-hm-role-coder` · `ai-team-tool-minimal-code` · `ai-team-tool-ui-ux` <br>  · `ai-team-dev-pt-hm-build` · `ai-team-dev-pt-hm-project-init` <br>  · `ai-team-dev-pt-hm-project-module-init`  <br> · `ai-team-dev-pt-hm-project-package-init` <br>  · `ai-team-dev-pt-hm-template-v2` |
+| 测试与验证 | 单元测试（ohosTest）、边界维度清单、结论有效性校验、环境条件门禁、真机 UI 黑盒自动化、启动验证 | `ai-team-role-reviewer` · `ai-team-dev-role-tester` <br>  · `ai-team-dev-role-reviewer` · `ai-team-dev-pt-hm-role-tester` <br>  · `ai-team-dev-pt-hm-ui-test` |
 | 质量与门禁 | 置信度门禁、输入校验 Guardrail、编排深度门禁、对抗式审查、问题分级、过度设计审查 | `ai-team-tool-global-rule` · `ai-team-role-reviewer` <br>  · `ai-team-tool-minimal-code` |
-| 安全与合规 | 死循环检测阈值、黑灰产/供应链攻击红线、敏感信息保护、依赖安装确认 | `ai-team-tool-security` · `ai-team-pt-hm-arkts-security` |
+| 安全与合规 | 死循环检测阈值、黑灰产/供应链攻击红线、敏感信息保护、依赖安装确认 | `ai-team-tool-security` · `ai-team-dev-pt-hm-arkts-security` |
 | 调试与排障 | 定位手段成本分级、协作调试循环、平台日志读取 | `ai-team-tool-debug-loop` |
 | 协作与交互 | 选项按钮规范、跨角色消息、报告事实源、冲突兜底、风险提示、用户协作成本优先 | `ai-team-tool-global-rule` · `ai-team-tool-report` |
-| 平台适配与规范 | 平台映射表、DevEco 路径探测、签名检查、设备错误码、ArkTS 编码/性能/安全规范 | `skills/ai-team-dev/platform-map.md` <br>  · `ai-team-pt-hm-build` · `ai-team-pt-hm-arkts-coding-rules` <br>  · `ai-team-pt-hm-arkts-performance` · `ai-team-pt-hm-arkts-security` <br>  · `ai-team-pt-hm-reviewer` |
+| 平台适配与规范 | 平台映射表、DevEco 路径探测、签名检查、设备错误码、ArkTS 编码/性能/安全规范 | `skills/ai-team-dev/platform-map.md` <br>  · `ai-team-dev-pt-hm-build` · `ai-team-dev-pt-hm-arkts-coding-rules` <br>  · `ai-team-dev-pt-hm-arkts-performance` · `ai-team-dev-pt-hm-arkts-security` <br>  · `ai-team-dev-pt-hm-role-reviewer` |
+| 创作编排（`writing`） | S0-S4 阶段路由、五类角色接力、设定集单写多读、章节精简（brief）作跨章记忆、多口味读者团并行实例 | `ai-team-write` · `ai-team-write-pt-long` <br>  · `-role-editor` · `-role-architect` <br>  · `-role-writer` · `-role-reader` |
+| 内容质量与门禁 | 审稿七维判据、结构门禁 G1-G6、伏笔状态与健康度、设定漂移校验、文风一致性、内容裁决留痕、跨口味分歧不合并 | `ai-team-write-role-critic` <br>  · `ai-team-write-role-editor` · `skills/ai-team-write/standards/` |
+| 内容市场与商业 | 竞品对标与雷同度判定、差异化定位、赛道价值与平台适配、爽点密度检查、体量更新策略、发布包装 | `ai-team-write-role-market` <br>  · `ai-team-write-role-commercial` |
 | 自我优化 | 静默自检、优化建议汇总、变更日志维护 | `ai-team-tool-auto-tune` |
 
 ### 2.2 分层架构
 
 ```mermaid
 flowchart TB
-    U["用户需求"] --> A["① 通用内核 · ai-team<br/>领域识别与路由 · PM 编排 · 动态角色编排"]
-    A -->|"命中 development"| B["② 开发领域 · ai-team-dev<br/>复杂度路由 · 四角色接力 · 平台参数传播"]
-    A -->|"未命中领域（generic）"| C["② 通用动态编排<br/>role-composer 现场推导角色组合"]
-    B --> D["③ 角色层<br/>需求策划 → 开发 → 测试 → 审查"]
-    C --> D2["③ 动态角色层<br/>按最终清单 spawn 角色 Agent"]
-    D -->|"命中 harmony"| E["④ 平台特化层 · 鸿蒙<br/>coder / tester / reviewer 特化<br/>+ 构建 · 初始化 · 模块 · 模板 · 规范"]
-    D -.-> F["⑤ 工具层（跨领域通用）<br/>global-rule · report · security · minimal-code<br/>ui-ux · debug-loop · auto-tune · web-read"]
-    D2 -.-> F
+    U["用户需求"] --> A["① 通用内核 · ai-team<br/>领域识别与路由 · 角色多选编排（原型落位）"]
+    A -->|"命中 development"| B["② 开发领域 · ai-team-dev<br/>读 role-registry 算预勾选 · 角色多选"]
+    A -->|"命中 writing"| B2["② 写作领域 · ai-team-write<br/>读 role-registry 算预勾选 · 角色多选"]
+    A -->|"未命中领域（generic）"| C["② 通用动态编排<br/>role-composer 推导 + 原型落位"]
+    B --> D["③ 领域角色层 · 开发<br/>planner·designer → maker·coder<br/>→ reviewer·tester / reviewer·reviewer"]
+    B2 --> D2["③ 领域角色层 · 写作<br/>planner·editor / ·architect → maker·writer<br/>→ reviewer·critic / ·reader×N / ·market / ·commercial"]
+    C --> D3["③ 动态角色层<br/>按最终清单 spawn（原型优先）"]
+    D --> P["④ 原型基座（领域无关）<br/>planner / maker / reviewer<br/>第零步领域适配钩子 + 统一参数契约"]
+    D2 --> P
+    D3 --> P
+    P -->|"命中 harmony"| E["⑤ 特化层 · 鸿蒙<br/>coder / tester / reviewer 特化<br/>+ 构建 · 初始化 · 模块 · 模板 · 规范"]
+    P -->|"命中 long"| E2["⑤ 特化层 · 长篇<br/>按批推进 · 体裁基线 · 收官校验"]
+    D -.-> F["⑥ 工具层（跨领域通用）<br/>global-rule · report · security · minimal-code<br/>ui-ux · debug-loop · auto-tune · web-read"]
+    D3 -.-> F
 ```
 
 | 层 | 职责 | 关键文件 |
 |----|------|----------|
-| ① 通用内核 | 领域识别、路由、PM 编排、动态角色推导、通用置信度门禁 | `skills/ai-team/SKILL.md`、 <br> `skills/ai-team/domain-map.md` |
-| ② 领域层 | 该领域的流程编排、角色映射、产出物规范 | `skills/ai-team-dev/SKILL.md`、 <br> `skills/ai-team-dev/platform-map.md` |
-| ③ 角色层 | 各角色的本职工作流与置信度自评 | `ai-team-role-*`、 <br> `ai-team-dev-role-designer` |
-| ④ 平台特化层 | 覆盖/补充通用角色的平台相关步骤 | `ai-team-pt-hm-*` |
-| ⑤ 工具层 | 跨领域通用能力（约束、文档、安全、调试、优化等） | `ai-team-tool-*` |
+| ① 通用内核 | 领域识别、路由、角色多选编排、动态角色推导（原型落位）、通用置信度门禁 | `skills/ai-team/SKILL.md`、 <br> `skills/ai-team/domain-map.md` |
+| ② 领域编排层 | 读注册表算预勾选、生成角色多选弹窗、按拓扑拉起、产出物规范、领域门禁 | `skills/ai-team-dev/SKILL.md` + `role-registry.md` + `platform-map.md`、 <br> `skills/ai-team-write/SKILL.md` + `role-registry.md` + `form-map.md` + `standards/` |
+| ③ 领域角色层 | 覆盖基座差异的领域专业流程（用**领域业务名**） | `ai-team-dev-role-*`、 <br> `ai-team-write-role-*` |
+| ④ 原型基座层 | 三角色通用骨架 + 域适配钩子 + 统一参数契约（**领域无关**） | `ai-team-role-planner` / `-maker` / `-reviewer` |
+| ⑤ 特化层 | 覆盖 / 补充角色流程的平台或形态相关步骤 | `ai-team-dev-pt-hm-*`（平台）、 <br> `ai-team-write-pt-long`（形态） |
+| ⑥ 工具层 | 跨领域通用能力（约束、文档、安全、调试、优化等） | `ai-team-tool-*` |
 
 ---
 
-## 三、通用与开发领域
+## 三、通用内核与已内置领域
 
-### 3.1 两者的差异
+### 3.1 差异对照
 
 **通用（`ai-team` / generic）** 指内核的领域无关流程——PM 编排、动态角色推导、通用置信度门禁；没有固定角色，角色按子目标现场推导。
 
-**开发（`ai-team-dev` / development）** 是挂在内核之下、被完整托管的领域——角色固定、流程分档、带平台适配。
+**开发（`ai-team-dev` / development）** 与 **写作（`ai-team-write` / writing）** 是挂在内核之下、被完整托管的两类领域——角色固定、流程分档、带特化层。
 
-| 维度 | 通用 · `ai-team`（generic） | 开发 · `ai-team-dev`（development） |
-|------|---------------------------|-----------------------------------|
-| 加载方式 | **总入口**——所有任务先经内核判定领域并路由 | 由内核领域路由 `use_skill` 委托加载，完整接管开发场景 |
-| 适用 | 写作、策划、调研、决策分析、方案评审等任意复杂任务 | 编码、开发、功能、模块、页面、bug、崩溃、重构、架构等 |
-| 角色来源 | **动态推导**（`role-composer`，从子目标所需视角反推） | **预设四角色**（需求策划 / 开发 / 测试 / 审查）可PM单独沟通追加 |
-| 预设角色 | 仅需求分析者（可选启用） | designer，可选启用 |
-| 流程 | 按 designer 产出的最终角色清单编排 | 轻量 / 标准 / 完整三档复杂度路由 |
-| 平台适配 | 无（保持领域无关） | `platform-map.md` → 命中 `harmony` 加载鸿蒙特化 |
-| 置信度门禁 | 通用检查清单 | 通用清单 **+ 平台特化检查项** |
-| 产出目录 | `docs/ai-team/{任务标识}/` | `docs/ai-team-dev/{任务标识}/` |
-| 团队命名 | `ai-team-{timestamp}` | `ai-team-dev-{timestamp}` |
+| 维度 | 通用 · `ai-team`（generic） | 开发 · `ai-team-dev` | 写作 · `ai-team-write` |
+|------|---------------------------|---------------------|----------------------|
+| 加载方式 | **总入口**——所有任务先经内核判定领域并路由 | 内核领域路由 `use_skill` 委托加载 | 同左 |
+| 适用 | 策划、调研、决策分析、方案评审等未注册领域的复杂任务 | 编码、开发、功能、模块、页面、bug、崩溃、重构、架构等 | 小说、网文、连载、文章、大纲、设定、伏笔、审稿、读者反馈等 |
+| 角色来源 | **动态推导**（`role-composer` 从子目标反推 + **原型落位**，无预设变体） | **注册表预设 4 个变体**（designer / coder / tester / reviewer），弹窗多选 | **注册表预设 7 个变体**（editor / architect / writer / critic / reader / market / commercial），弹窗多选 |
+| 预勾选来源 | —（全部由推导得出） | 按需求特征（改动范围 / 歧义 / 架构影响） | 按 S0-S4 创作阶段 |
+| 流程 | 按计划者产出的最终清单编排 | 角色多选 → 按 `planner → maker → reviewer` 拓扑接力（维度可声明依赖） | 同左（**不用复杂度档**） |
+| 特化层 | 无（保持领域无关） | `platform-map.md` → 命中 `harmony` 加载鸿蒙特化 | `form-map.md` → 命中 `long` 加载长篇形态特化 |
+| 领域门禁 | 通用检查清单 | 通用清单 **+ 平台特化检查项** | 通用清单 **+ 结构门禁 G1-G6 / P0 红线 / 一票否决 + 封顶** |
+| 领域资产 | — | `platform-map.md` | `standards/`（7 份判据，角色按需 `read_file`，**单一事实源**） |
+| 产出目录 | `docs/ai-team/{任务标识}/` | `docs/ai-team-dev/{任务标识}/` | `docs/ai-team-write/{任务标识}/` |
+| 团队命名 | `ai-team-{timestamp}` | `ai-team-dev-{timestamp}` | `ai-team-write-{timestamp}` |
 
-> `ai-team` 是**总入口**——开发领域关键词也由它接住，再由内核领域路由 `use_skill ai-team-dev` 委托给开发领域 PM，由后者完整接管。
+> `ai-team` 是**总入口**——各领域关键词都由它接住，再由内核按 `domain-map.md` 路由 `use_skill {领域 PM}` 委托，由后者完整接管。**内核不含任何领域逻辑**，这正是两个异质领域（工程 / 创作）能共用同一套机制的原因。
 
 ### 3.2 扩展方式
 
@@ -154,6 +181,8 @@ flowchart TB
 |----------|------|----------|
 | 新增领域 | `skills/ai-team/domain-map.md`  <br> 加一行：`\| 标识 \| 名称 \| use_skill {领域PM} \| 触发特征 \|` | 内核零改动 |
 | 新增平台 | `skills/ai-team-dev/platform-map.md`  <br> 加一行（coder/tester/reviewer 三列可留空），并在 `ai-team-dev-role-designer` 的平台识别表补关键词 | 通用角色零改动 |
+| 新增写作形态 | `skills/ai-team-write/form-map.md` 加一行（特化列可留空，留空即按通用流程） | 写作角色零改动 |
+| 新增读者口味 | 新增 `skills/ai-team-write/standards/reader/{口味}.md`（按现有模块的七段骨架） | 内核与角色零改动 |
 
 完整步骤（目录结构、frontmatter、产出路径、验证方式）见 [十二、扩展指南](#十二扩展指南新增领域与平台)。
 
@@ -168,9 +197,9 @@ flowchart TD
     A["用户提出复杂问题"] --> B["PM：领域识别<br/>读 domain-map.md → 未命中，标记 generic"]
     B --> C["PM：确定任务标识<br/>docs/ai-team/{slug}-{YYMMDD}/"]
     C --> D["PM：预估角色推导（role-composer）<br/>仅用于填充弹窗选项"]
-    D --> E["PM：一次 ask 多问<br/>角色配置（单角色/标准 × 含/不含需求人员）+ 运行模式"]
-    E -->|"含需求人员"| F["spawn 需求分析者<br/>深挖需求 + 产出最终角色清单"]
-    E -->|"不含需求人员"| G["预估清单即最终清单"]
+    D --> E["PM：一次 ask 多问<br/>角色多选（按原型分组）+ 运行模式"]
+    E -->|"勾选计划者"| F["spawn 计划者<br/>深挖需求 + 产出最终角色清单"]
+    E -->|"未勾选计划者"| G["预估清单即最终清单"]
     F --> H["团队调整机制<br/>designer 可建议增删角色，经用户确认"]
     H --> I["PM：按最终清单 spawn 角色 Agent"]
     G --> I
@@ -185,28 +214,27 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["用户提出开发需求"] --> B["PM：复杂度评估<br/>轻量 / 标准 / 完整"]
-    B --> C["PM：编排确认<br/>是否含需求人员 + 全自动 / 手动确认"]
-    C --> D["需求策划 Agent<br/>深挖需求 + 识别 platform + 任务拆分"]
-    D --> E["开发 Agent<br/>查 platform-map → 加载平台特化 → 编码 + 编译验证"]
-    E --> F["测试 Agent<br/>用例设计 → ohosTest / 真机 UI 自动化"]
-    F --> G["审查 Agent<br/>代码审查 + 交付检查 + 启动验证"]
-    G --> H["PM 汇总结果 + 自我优化建议 + 回收团队"]
+    A["用户提出开发需求"] --> B["PM：读 role-registry<br/>按「预勾选条件」推导默认清单"]
+    B --> C["PM：编排确认（一次弹窗）<br/>角色多选（按原型分组）+ 全自动 / 手动确认"]
+    C --> D["计划者 Agent（planner）<br/>深挖需求 + 识别 platform + 任务拆分"]
+    D --> E["实现者 Agent（maker）<br/>查 platform-map → 加载平台特化 → 编码 + 编译验证"]
+    E --> F["审查者 · 测试验证<br/>用例设计 → ohosTest / 真机 UI 自动化"]
+    F --> G["审查者 · 代码审查<br/>代码审查 + 交付检查 + 启动验证"]
+    G --> H["PM 汇总结果<br/>（可选流程复盘）→ 回收团队"]
 
     E -. "需求疑问直接问用户" .-> A
-    F -. "缺陷反馈 coder-agent" .-> E
-    G -. "审查问题 / RECONCILE" .-> E
+    F -. "缺陷反馈 maker" .-> E
+    G -. "审查问题，回炉最多 3 轮" .-> E
+    C -. "未勾选计划者 → 内联需求直接开工" .-> E
 ```
 
-**复杂度路由**
+**角色清单由用户决定**（**无复杂度档位**）
 
-| 复杂度 | 典型场景 | 角色流程 |
-|--------|----------|----------|
-| 轻量 | 改文案、调样式、小 bug、改配置值 | 需求策划 → 开发 →（按需）测试 |
-| 标准 | 功能修改、局部重构、新增小组件 | 需求策划 → 开发 → 测试 →（按需）审查 |
-| 完整 | 新项目、新模块、新页面、需求模糊 | 需求策划 → 开发 → 测试 → 审查 |
+角色不再由「轻量 / 标准 / 完整」硬路由决定，而是：**PM 读 `role-registry.md` 按需求特征给出预勾选 → 一次弹窗让用户多选 → 计划者可建议增删**（最终清单覆盖初始选择）。
 
-> 判定信号：改动范围 / 需求歧义 / 是否涉及架构 / 测试必要性；冲突时取较高复杂度，无法判断默认「标准」。PM 判定后必须告知用户将拉起的角色清单，用户可随时覆盖。
+同原型下**不同审查维度各起一个实例**（如「测试验证」与「代码审查」），并行执行、**各写各报告、不合并**；声明了前置依赖的维度按拓扑串行（如「代码审查」须等「测试验证」完成）。
+
+> 依赖顺序是**技术契约**（下游维度要读上游维度的报告），因此**不设用户选项**——用户的选择空间在「勾哪些维度」。PM 判定后必须**按拓扑顺序**告知用户将拉起的角色清单，用户可随时覆盖。
 
 **平台适配（三步）**
 
@@ -231,7 +259,7 @@ flowchart TD
 ### 5.2 编排与角色
 
 - **领域路由**：注册表驱动，命中即委托领域 PM，未命中进入动态编排
-- **复杂度路由**：轻量 / 标准 / 完整三档，避免简单需求走全流程
+- **角色多选编排**：角色与审查维度由用户在弹窗多选（PM 按需求特征给预勾选推荐），**无复杂度档位**
 - **动态角色推导**：从「子目标需要什么视角」反推角色，而非从预设清单挑选；含四要素规范（角色名 / 职责 / 产出物 / 验收标准）、2-5 数量门禁与 5 类反模式
 - **团队调整机制**：需求角色深挖需求后可向用户建议增删角色，最终清单覆盖初始选择
 - **任务拆分**：复杂需求产出「任务清单」表格并经用户确认；开发角色逐个串行实现，每任务编译 + 汇报确认，全部完成后汇总
@@ -342,8 +370,8 @@ sequenceDiagram
 
     Note over U,PM: 阶段 0 · 初始化与编排确认
     U->>PM: 提出需求
-    PM->>PM: 复杂度评估 → 完整模式
-    PM->>U: 编排方案（含/不含需求人员 + 全自动/手动确认）
+    PM->>PM: 读 role-registry → 推导预勾选
+    PM->>U: 编排方案（角色多选 + 全自动/手动确认）
     U-->>PM: 确认
 
     Note over PM,D: 阶段 1 · 需求策划
@@ -377,7 +405,7 @@ sequenceDiagram
 
 | 阶段 | 执行角色 | 关键动作 | 沉淀报告 |
 |------|----------|----------|----------|
-| 0 | PM | 复杂度评估、编排确认、创建团队 | — |
+| 0 | PM | 读注册表算预勾选、编排确认（角色多选）、创建团队 | — |
 | 1 | 需求策划 | 需求澄清、平台识别、任务拆分、角色规模适配检查 | `designer-report.md` |
 | 2 | 开发 | 项目初始化 → 编码 → 语法校验 → 编译验证 | `coder-report.md`（多任务另含 `coder-report-task-{N}.md`） |
 | 3 | 测试 | ohosTest 单测 +（可选）真机 UI 自动化 | `tester-report.md` |
@@ -391,40 +419,81 @@ sequenceDiagram
 | # | 场景 | 用户说法示例 | 走什么流程 | 关键机制 |
 |---|------|-------------|-----------|----------|
 | 1 | 非开发领域复杂任务 | "帮我调研 X 领域现状并给出结论" | 通用动态编排：PM 推导角色 → spawn 调研者 + 分析者 +（可选）质疑者 | 动态角色推导、报告事实源、置信度门禁 |
-| 2 | 新项目从零开发（鸿蒙） | "用 ai-team-dev 创建一个 Todo App" | 完整模式：需求策划 → 开发（项目初始化 + 编码 + 编译）→ 测试（ohosTest + 真机 UI）→ 审查（hdc 启动验证） | 平台特化、项目初始化、真机 UI 黑盒自动化 |
-| 3 | 复杂重构 | "把 X 模块重构成 Y 架构" | 完整模式 + 任务拆分：需求策划产出任务清单 → 开发逐任务串行实现、逐个汇报 | 任务拆分、阶段式开发、技术冲突先问用户 |
-| 4 | Bug 修复 | "这个页面偶发崩溃，帮我修" | 需求策划裁掉 → 开发（Bug 修复模式）→ 测试 | 定位手段成本分级、协作调试循环 |
-| 5 | 小改动 | "把这个按钮文案改一下" | 轻量模式：需求策划 → 开发（按需测试） | 复杂度路由、不做全流程 |
+| 2 | 新项目从零开发（鸿蒙） | "用 ai-team-dev 创建一个 Todo App" | 全勾：计划者 → 实现者（项目初始化 + 编码 + 编译）→ 审查者（测试验证 ohosTest + 真机 UI / 代码审查 hdc 启动验证） | 平台特化、项目初始化、真机 UI 黑盒自动化 |
+| 3 | 复杂重构 | "把 X 模块重构成 Y 架构" | 全勾 + 任务拆分：计划者产出任务清单 → 实现者逐任务串行实现、逐个汇报 → 审查者 | 任务拆分、阶段式开发、技术冲突先问用户 |
+| 4 | Bug 修复 | "这个页面偶发崩溃，帮我修" | 不勾计划者 → 实现者（Bug 修复模式）→ 审查者（测试验证） | 定位手段成本分级、协作调试循环、内联需求直接开工 |
+| 5 | 小改动 | "把这个按钮文案改一下" | 只勾实现者（按需加审查者·测试验证） | 用户多选、不做全流程 |
 | 6 | 已有代码审查 | "帮我审查这块代码" | 单独加载审查角色，不走 PM 编排 | 问题分级、对抗审查、过度设计审查 |
 
 ---
 
 ## 八、Skill 清单
 
-<details open>
-<summary><b>共 28 个 Skill</b></summary>
+**命名规范**：`ai-team-{领域}-{类型}-{目标}-{对象}`，按需省略
 
-**编排入口（2）**
+| 段 | 取值 | 说明 |
+|----|------|------|
+| 前缀 | `ai-team-` | 固定 |
+| 领域段 | 省略 = 框架通用（原型基座 / 工具）；`dev` / `write` = 领域专属 | **原型基座与通用工具不带领域段**——它们可被任意领域复用 |
+| 类型段 | `role-` 角色 · `tool-` 工具 · `pt-` 特化 | `pt-`（specialization）必须带领域段 |
+| 目标段 | 仅 `pt-` 有：`hm` 鸿蒙平台 / `long` 长篇形态 | 特化目标 |
+| **对象段** | 仅 `pt-` 有：`role-{角色变体}` = 角色特化 · `{工具名}` = 独立平台工具 | **有无 `role-` 即判别标记**；角色特化的后缀与领域角色名逐字配对（`-pt-hm-role-coder` ↔ `ai-team-dev-role-coder`） |
+
+示例：`ai-team-role-planner`（原型基座）· `ai-team-dev-role-coder`（开发领域角色，原型 = maker）· `ai-team-dev-pt-hm-role-coder`（开发领域 · 鸿蒙平台 · **coder 角色**特化）· `ai-team-dev-pt-hm-build`（开发领域 · 鸿蒙平台 · 独立工具，无 `role-`）· `ai-team-write-pt-long`（写作领域 · 长篇形态特化，不针对具体角色故无对象段）
+
+> **原型归属不在名字里**：领域角色一律用领域业务名（`designer` / `coder` / `critic` / `reader`…），原型归属由各领域 `role-registry.md` 声明——**注册表是唯一权威**。
+
+<details open>
+<summary><b>共 39 个 Skill</b></summary>
+
+**编排入口（3）**
 
 | Skill | 说明 |
 |-------|------|
 | `ai-team` | 通用多 Agent 协同编排内核（总入口） |
 | `ai-team-dev` | 软件开发领域入口（PM） |
+| `ai-team-write` | 写作领域入口（PM） |
 
-**通用角色（4，均带置信度）**
-
-| Skill | 说明 |
-|-------|------|
-| `ai-team-role-designer` | 需求策划（通用基座） |
-| `ai-team-role-coder` | 开发 |
-| `ai-team-role-tester` | 测试 |
-| `ai-team-role-reviewer` | 审查 |
-
-**领域扩展角色（1）**
+**原型基座（3，领域无关，均带置信度）**
 
 | Skill | 说明 |
 |-------|------|
-| `ai-team-dev-role-designer` | 需求策划的开发领域扩展（平台识别 / 技术层面识别 / 编译单元式拆分） |
+| `ai-team-role-planner` | 计划者：澄清需求 / 拆解子目标 / 产出蓝图与口径（内容口径权威） |
+| `ai-team-role-maker` | 实现者：按上游蓝图产出最终交付物 |
+| `ai-team-role-reviewer` | 审查者：按**维度**检查把关，**同原型可多实例** |
+
+> 三者的「第零步：领域适配」按参数加载对应领域扩展，并统一含 `[领域扩展]` 标注位与统一参数契约。
+
+**领域注册表（2）**
+
+| 文件 | 说明 |
+|------|------|
+| `skills/ai-team-dev/role-registry.md` | 开发：角色 / 审查维度 / 预勾选条件 / 前置依赖 / 数量上限 |
+| `skills/ai-team-write/role-registry.md` | 写作：同上 + S0-S4 预勾选推荐 + 读者口味多实例 |
+
+**领域角色（11）**
+
+| Skill | 说明 |
+|-------|------|
+| `ai-team-dev-role-designer` | 开发·计划者（原型 planner）：平台识别 / 技术层面识别 / 编译单元式拆分 |
+| `ai-team-dev-role-coder` | 开发·实现者（原型 maker）：任务清单式阶段开发 + 语法校验 + 编译验证 |
+| `ai-team-dev-role-tester` | 开发·审查者（维度 测试验证）：边界维度清单 + 结论有效性 + 单测 / 真机 UI |
+| `ai-team-dev-role-reviewer` | 开发·审查者（维度 代码审查）：交付检查 + 质量审查 + 启动验证 |
+| `ai-team-write-role-editor` | 写作·计划者（原型 planner）：基调卡 + 内容裁决，内容层唯一裁决者 |
+| `ai-team-write-role-architect` | 写作·计划者（原型 planner）：设定集五件套，设定集唯一写入者 |
+| `ai-team-write-role-writer` | 写作·实现者（原型 maker）：按批写作 + 章节精简 + 主台账登记 |
+| `ai-team-write-role-critic` | 写作·审查者（维度 内容审稿）：七维判据 + 结构门禁 G1-G6 |
+| `ai-team-write-role-reader` | 写作·审查者（维度 读者评分 **×N 口味，多实例**） |
+| `ai-team-write-role-market` | 写作·审查者（维度 内容竞品对标） |
+| `ai-team-write-role-commercial` | 写作·审查者（维度 商业评估） |
+
+**写作形态特化（1）**
+
+| Skill | 说明 |
+|-------|------|
+| `ai-team-write-pt-long` | 长篇小说形态：按批推进 + 连载体裁基线 + 卷末 / 收官校验 |
+
+> 写作领域的**判据与标准不放在 skill 内**，集中存放在 `skills/ai-team-write/standards/`（审稿 / 结构 / 竞品 / 商业 + 3 个读者口味模块，共 7 份），由角色按需 `read_file` 加载——**单一事实源，避免多份副本漂移**。
 
 **通用工具（9）**
 
@@ -440,27 +509,27 @@ sequenceDiagram
 | `ai-team-tool-ui-ux` | UI 体验优化（防抖节流 + 四态管理） |
 | `ai-team-tool-web-read` | 网页需求文档读取（HTML→Markdown + 图片本地化） |
 
-**鸿蒙平台特化角色（3，均带置信度）**
+**开发领域 · 鸿蒙平台特化角色（3，均带置信度）**
 
 | Skill | 说明 |
 |-------|------|
-| `ai-team-pt-hm-coder` | 状态管理 V1/V2 选型、MCP LSP 语法校验、编码模板接入 |
-| `ai-team-pt-hm-tester` | ohosTest 完整测试流程 + 设备环境边界 |
-| `ai-team-pt-hm-reviewer` | hdc 启动验证、签名检查、hilog 崩溃检查 |
+| `ai-team-dev-pt-hm-role-coder` | 状态管理 V1/V2 选型、MCP LSP 语法校验、编码模板接入 |
+| `ai-team-dev-pt-hm-role-tester` | ohosTest 完整测试流程 + 设备环境边界 |
+| `ai-team-dev-pt-hm-role-reviewer` | hdc 启动验证、签名检查、hilog 崩溃检查 |
 
-**鸿蒙平台特化工具（9）**
+**开发领域 · 鸿蒙平台特化工具（9）**
 
 | Skill | 说明 |
 |-------|------|
-| `ai-team-pt-hm-ui-test` | 真机 UI 自动化测试（devecocli 驱动 + 运行时取证） |
-| `ai-team-pt-hm-build` | 编译构建（DevEco 路径探测） |
-| `ai-team-pt-hm-project-init` | 新项目初始化 |
-| `ai-team-pt-hm-project-module-init` | HAR/HSP 模块创建 |
-| `ai-team-pt-hm-project-package-init` | 第三方包预装 |
-| `ai-team-pt-hm-template-v2` | ArkUI V2 官方 MVVM 编码模板 |
-| `ai-team-pt-hm-arkts-coding-rules` | ArkTS 与 TypeScript 差异编码规则 |
-| `ai-team-pt-hm-arkts-performance` | ArkUI 性能优化规则 |
-| `ai-team-pt-hm-arkts-security` | ArkTS 安全编码规范 |
+| `ai-team-dev-pt-hm-ui-test` | 真机 UI 自动化测试（devecocli 驱动 + 运行时取证） |
+| `ai-team-dev-pt-hm-build` | 编译构建（DevEco 路径探测） |
+| `ai-team-dev-pt-hm-project-init` | 新项目初始化 |
+| `ai-team-dev-pt-hm-project-module-init` | HAR/HSP 模块创建 |
+| `ai-team-dev-pt-hm-project-package-init` | 第三方包预装 |
+| `ai-team-dev-pt-hm-template-v2` | ArkUI V2 官方 MVVM 编码模板 |
+| `ai-team-dev-pt-hm-arkts-coding-rules` | ArkTS 与 TypeScript 差异编码规则 |
+| `ai-team-dev-pt-hm-arkts-performance` | ArkUI 性能优化规则 |
+| `ai-team-dev-pt-hm-arkts-security` | ArkTS 安全编码规范 |
 
 </details>
 
@@ -605,15 +674,15 @@ Copy-Item -Recurse ai-team* "$HOME\.agents\skills\"
 **步骤 1 · 创建领域 PM skill**
 
 ```
-skills/ai-team-dom-data/
+skills/ai-team-data/
 └── SKILL.md
 ```
 
-`SKILL.md` 的 frontmatter 与结构参考 `skills/ai-team-dev/SKILL.md`：
+`SKILL.md` 的 frontmatter 与结构参考现有领域 PM——**新增「非开发类」领域照抄 `skills/ai-team-write/SKILL.md` 更贴近**（它同样不走复杂度档、按自有阶段模型分流），开发类领域参考 `skills/ai-team-dev/SKILL.md`：
 
 ```yaml
 ---
-name: ai-team-dom-data
+name: ai-team-data
 autoTrigger: true
 trigger: keyword-and-route
 description: |
@@ -622,14 +691,14 @@ description: |
 ---
 ```
 
-领域 PM 正文需定义：本领域流程/复杂度路由、角色映射、产出物路径、置信度门禁与协作协议。
+领域 PM 正文需定义：本领域流程分流、角色映射（含 `role-registry.md`）、产出物路径、置信度门禁与协作协议。
 
 **步骤 2 · 在领域注册表注册**
 
 编辑 `skills/ai-team/domain-map.md`，在「注册表」表格新增一行：
 
 ```
-| data | 数据分析 | use_skill ai-team-dom-data | 数据分析、报表、指标、看板、SQL 等 |
+| data | 数据分析 | use_skill ai-team-data | 数据分析、报表、指标、看板、SQL 等 |
 ```
 
 > **同步要求**：注册前确认该领域 PM skill 已存在，且触发关键词不与现有领域冲突（见 `skills/ai-team/SKILL.md` 的「触发协调」章节）。
@@ -638,8 +707,8 @@ description: |
 
 | 项 | 取值 | 说明 |
 |----|------|------|
-| 产出目录 | `docs/ai-team-dom-data/{任务标识}/` | 避免与 `docs/ai-team/`、`docs/ai-team-dev/` 互相覆盖 |
-| 团队命名 | `ai-team-dom-data-{timestamp}` | 独立命名空间，便于会话回收 |
+| 产出目录 | `docs/ai-team-data/{任务标识}/` | 避免与 `docs/ai-team/`、`docs/ai-team-dev/` 互相覆盖 |
+| 团队命名 | `ai-team-data-{timestamp}` | 独立命名空间，便于会话回收 |
 | 任务标识 | `{主题slug}-{YYMMDD}` | 沿用现有约定 |
 
 **步骤 4 · 复用现有资产**
@@ -648,7 +717,7 @@ description: |
 |----------|-----------|------|
 | 通用角色 `ai-team-role-*` | 否 | 直接 spawn；spawn prompt 传 `领域: {你的领域}`，角色的「第零步：领域适配」会判断是否加载领域扩展 |
 | 通用工具 `ai-team-tool-*` | 否 | `global-rule` / `report` / `auto-tune` / `role-composer` / `web-read` 均领域无关 |
-| 领域专属角色步骤 | 按需 | 参照「通用基座 + 领域扩展」模式（`ai-team-role-designer` + `ai-team-dev-role-designer`），在通用角色第零步按 `领域` 参数加载扩展 |
+| 领域专属角色步骤 | 按需 | 参照「原型基座 + 领域扩展」模式（`ai-team-role-planner` + `ai-team-dev-role-designer`），在原型基座第零步按 `领域` / `变体` 参数加载扩展；并在本领域 `role-registry.md` 加一行声明原型归属 |
 
 **步骤 5 · 验证**
 
@@ -664,12 +733,12 @@ description: |
 编辑 `skills/ai-team-dev/platform-map.md` 新增一行（某角色无需特化则该列**留空**，留空表示由 AI 自行发挥）：
 
 ```
-| flutter | ai-team-pt-fl-coder | ai-team-pt-fl-tester | ai-team-pt-fl-reviewer |
+| flutter | ai-team-dev-pt-fl-role-coder | ai-team-dev-pt-fl-role-tester | ai-team-dev-pt-fl-role-reviewer |
 ```
 
 **步骤 2 · 编写平台特化 skill**
 
-- 目录：`skills/ai-team-pt-{平台缩写}-{role}/SKILL.md`，frontmatter 参考 `skills/ai-team-pt-hm-coder/SKILL.md`
+- 目录：`skills/ai-team-dev-pt-{平台缩写}-role-{变体}/SKILL.md`，frontmatter 参考 `skills/ai-team-dev-pt-hm-role-coder/SKILL.md`
 - 正文结构：`## 触发`（`platform={平台}`）→ `## 覆盖范围`（表格：通用步骤 → 平台特化行为）→ `## 平台特化流程`
 - **只写「覆盖/补充」**：通用流程仍由 `ai-team-role-*` 提供，特化 skill 不重复实现
 
@@ -679,7 +748,7 @@ description: |
 
 **步骤 4 · 按需补充平台工具**
 
-构建、项目初始化、模块创建、依赖预装等按 `ai-team-pt-{平台}-build`、`-project-init` 等命名，结构参考鸿蒙侧同名 skill。
+构建、项目初始化、模块创建、依赖预装等按 `ai-team-dev-pt-{平台}-build`、`-project-init` 等命名，结构参考鸿蒙侧同名 skill。
 
 > **设计约束**：通用角色中不含任何平台代码，平台差异全部封装在特化 skill 内。
 

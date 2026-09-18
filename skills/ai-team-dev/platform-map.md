@@ -1,17 +1,17 @@
 # 平台适配映射表
 
-> 各通用角色（coder/tester/reviewer）被 spawn 后，根据 PM 传入的 `platform` 参数查此表，
+> 各领域角色（变体 `coder` / `tester` / `reviewer`）被 spawn 后，根据 PM 传入的 `platform` 参数查此表，
 > 命中则加载对应特化 skill，未命中则由 AI 自行发挥。
 
 ## 映射规则
 
 | platform | coder 特化 | tester 特化 | reviewer 特化 |
 |----------|-----------|------------|--------------|
-| harmony | `ai-team-pt-hm-coder` | `ai-team-pt-hm-tester` | `ai-team-pt-hm-reviewer` |
+| harmony | `ai-team-dev-pt-hm-role-coder` | `ai-team-dev-pt-hm-role-tester` | `ai-team-dev-pt-hm-role-reviewer` |
 
 ## 使用方式
 
-1. 通用角色收到 PM 传来的 `platform` 参数
+1. 领域角色收到 PM 传来的 `platform` 参数
 2. 读取本文件：`read_file("{skills_dir}/ai-team-dev/platform-map.md")`
 3. 查表：在 `platform` 列匹配当前平台
 4. 命中 → `use_skill {对应的特化 skill}`

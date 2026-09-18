@@ -18,21 +18,19 @@
 ```
 用户
   ↓
-ai-team-dev (轻量 PM / Manager 模式)
+ai-team-dev (领域 PM / Manager 模式)
+  ├── 读 role-registry.md → 算预勾选 → 一次弹窗「角色多选 + 运行模式」
   ├── team_create → 创建协作团队
-  ├── task → spawn 各角色 Agent（传入 platform 参数）
+  ├── task → 按原型拓扑 spawn（注入 artifact_dir / platform / platform_map / depends_on / 模式）
   └── send_message → 接收完成信号 / 转发用户决策
       │
-      ├─ designer-agent     ←→ ai-team-role-designer
+      ├─ planner-agent   = ai-team-role-planner（变体 designer）+ ai-team-dev-role-designer
       │      ↓ 置信度 ≥ 85%
-      │
-      ├─ coder-agent        ←→ ai-team-role-coder → 查 platform-map → 加载平台特化
+      ├─ maker-agent     = ai-team-role-maker（变体 coder）+ ai-team-dev-role-coder → 查 platform-map → 加载特化
       │      ↓ 置信度 ≥ 85%
-      │
-      ├─ tester-agent       ←→ ai-team-role-tester → 查 platform-map → 加载平台特化
-      │      ↓ 置信度 ≥ 85%
-      │
-      └─ reviewer-agent     ←→ ai-team-role-reviewer → 查 platform-map → 加载平台特化
+      ├─ tester-agent    = ai-team-role-reviewer（变体 tester）+ ai-team-dev-role-tester → 查 platform-map → 加载特化
+      │      ↓ 置信度 ≥ 85%（**代码审查维度依赖测试验证先完成**）
+      └─ reviewer-agent  = ai-team-role-reviewer（变体 reviewer）+ ai-team-dev-role-reviewer → 查 platform-map → 加载特化
              ↓ 置信度 ≥ 85%
          向用户报告（会话自动回收）
 ```
@@ -60,16 +58,16 @@ ai-team-dev 采用 **Manager（集中式编排）** 模式——PM 集中调度�
 | 适用场景 | 需汇总多角色产出的流程 | 单一专业领域完全接管 |
 | ai-team-dev | ✅ 当前采用 | - |
 
-### 编排确认（含需求人员 + 运行模式）
+### 编排确认（角色多选 + 运行模式）
 
-创建团队前，PM 用一次 `ask_followup_question` 问清两项，并随 spawn prompt 传给每个角色：
+创建团队前，PM **先读 `role-registry.md` 按「预勾选条件」列推导默认清单**，再用一次 `ask_followup_question` 问清两项，并随 spawn prompt 传给每个角色：
 
-- **是否含需求人员**：所有档位（含轻量）均适用。`含` → 先 spawn `designer-agent` 深挖需求 + 识别平台；`不含` → 跳过需求策划环，PM 当场锁定 `platform`，coder 直接读用户原始需求并自行澄清
-- **运行模式**：仅标准/完整（存在 designer → coder → tester → reviewer 等上下游角色接力）需问
+- **角色多选**（`multiSelect`，按原型分组、**1 角色 / 维度 1 选项**，**不得按原型合并**）：计划者·设计 / 实现者·开发 / 审查者·测试验证 / 审查者·代码审查。勾选即决定本团队组成，**没有「轻量 / 标准 / 完整」档位**
+- **运行模式**：全自动 / 手动确认（存在多角色接力时生效）
 
 | 模式 | 完成信号流程 |
 |------|-------------|
-| **全自动** | 角色完成 → `send_message` 通知 PM → PM 直接放行下一角色（默认，轻量模式固定全自动） |
+| **全自动** | 角色完成 → `send_message` 通知 PM → PM 直接放行下一角色 |
 | **手动确认** | 角色完成 → `ask_followup_question` 向用户确认完成度 → 用户确认 → 才 `send_message` 通知 PM → PM 放行下一角色 |
 
 > 手动确认的完成度确认发生在角色会话内，PM 收到完成信号后不重复向用户确认。角色完成通知行为由各角色 skill 的「通知 PM」步骤内「完成通知模式」门禁约束。
@@ -77,10 +75,12 @@ ai-team-dev 采用 **Manager（集中式编排）** 模式——PM 集中调度�
 ## 五、Skill 体系概览
 
 ```
-角色（通用）     ai-team-role-designer / coder / tester / reviewer   ✅ 有置信度
-角色（平台特化）  ai-team-pt-{platform}-{role}                        ✅ 有置信度
-工具（通用）     ai-team-tool-global-rule / auto-tune / report / security / ui-ux / debug-loop / minimal-code / web-read
-工具（平台）     ai-team-pt-{platform}-build / project-init / project-module-init / project-package-init / template-* / arkts-*
+原型基座（领域无关）ai-team-role-planner / -maker / -reviewer        ✅ 有置信度
+领域角色（本领域）  ai-team-dev-role-designer / -coder / -tester / -reviewer（覆盖基座差异）
+角色注册表       ai-team-dev/role-registry.md（角色、维度、预勾选条件、依赖、上限）
+角色平台特化     ai-team-dev-pt-{platform}-role-{变体}                  ✅ 有置信度
+工具（通用）     ai-team-tool-global-rule / role-composer / report / auto-tune / debug-loop / minimal-code / security / ui-ux / web-read
+工具（平台特化）  ai-team-dev-pt-{platform}-build / project-init / project-module-init / project-package-init / template-* / arkts-*
 映射表          ai-team-dev/platform-map.md
 ```
 
@@ -113,8 +113,8 @@ flowchart TD
 | 层级 | 名称 | ai-team-dev 对应 | 变更频率 | 职责 |
 |------|------|-------------|----------|------|
 | **Layer 1** | 基础人格层 | `ai-team-tool-global-rule` — 指令权威分层 + 行为准则 | 极少变动 | 定义 Agent 核心身份、[门禁] 硬约束/软建议边界 |
-| **Layer 2** | 角色指令层 | 各 `ai-team-role-*` — 角色定位 + 核心工作流 | 随版本迭代 | 定义专业角色、能力范围、置信度评估 |
-| **Layer 3** | 工具定义层 | `ai-team-pt-*` — 平台特化工具/模板/编译/测试流程 | 平台扩展时变动 | 描述可用工具、参数格式、使用约束 |
+| **Layer 2** | 角色指令层 | 原型基座 `ai-team-role-*` + 领域扩展 `ai-team-dev-role-*` — 定位 + 工作流 | 随版本迭代 | 定义专业角色、能力范围、置信度评估 |
+| **Layer 3** | 工具定义层 | `ai-team-dev-pt-*` — 平台特化工具/模板/编译/测试流程 | 平台扩展时变动 | 描述可用工具、参数格式、使用约束 |
 | **Layer 4** | 上下文注入层 | PM spawn 传入的 `platform`、文档路径等运行时参数 | 每次对话不同 | 运行时采集并注入的实时信息 |
 | **Layer 5** | 动态规则层 | `platform-map.md`、用户自定义偏好 | 最灵活 | 按需扩展，新增平台只改这一层 |
 
@@ -126,11 +126,11 @@ flowchart TD
 
 ### 1. 平台适配
 
-需求策划 Agent 识别目标平台 → 写入需求文档 → PM 读取后传给下游（用户选「不含需求人员」时无 designer，`platform` 由 PM 依据用户原始需求当场锁定）→ 下游查 `platform-map.md` 映射表加载特化 skill：
+需求策划 Agent 识别目标平台 → 写入需求文档 → PM 读取后传给下游（用户**未勾选「计划者」**时无 designer，`platform` 由 PM 依据用户原始需求当场锁定）→ 下游查 `platform-map.md` 映射表加载特化 skill：
 
 | platform | coder 特化 | tester 特化 | reviewer 特化 |
 |----------|-----------|------------|--------------|
-| harmony | `ai-team-pt-hm-coder` | `ai-team-pt-hm-tester` | `ai-team-pt-hm-reviewer` |
+| harmony | `ai-team-dev-pt-hm-role-coder` | `ai-team-dev-pt-hm-role-tester` | `ai-team-dev-pt-hm-role-reviewer` |
 
 > 新增平台：在映射表加一行 + 编写对应特化 skill，无需改动任何通用角色。
 
@@ -194,26 +194,26 @@ flowchart TD
 
 | 角色 | Skill | 职责 | 置信度 |
 |------|-------|------|--------|
-| 需求策划 | `ai-team-role-designer` | 需求收集（含平台识别） + 结构化输出 | ✅ 85% |
-| 开发 | `ai-team-role-coder` | 查平台映射 → 加载特化 → 编码 + 编译验证 | ✅ 85% |
-| 测试 | `ai-team-role-tester` | 查平台映射 → 加载特化 → 测试 + 缺陷反馈 | ✅ 85% |
-| 审查 | `ai-team-role-reviewer` | 查平台映射 → 加载特化 → 审查 + 启动验证 | ✅ 85% |
+| 需求策划 | `ai-team-dev-role-designer` | 需求收集（含平台识别） + 结构化输出 | ✅ 85% |
+| 开发 | `ai-team-dev-role-coder` | 查平台映射 → 加载特化 → 编码 + 编译验证 | ✅ 85% |
+| 测试 | `ai-team-dev-role-tester` | 查平台映射 → 加载特化 → 测试 + 缺陷反馈 | ✅ 85% |
+| 审查 | `ai-team-dev-role-reviewer` | 查平台映射 → 加载特化 → 审查 + 启动验证 | ✅ 85% |
 | PM | `ai-team-dev` | 团队管理 + 分派 + 门禁 + 用户中枢 | — |
 
 ### 平台特化 Skill（以鸿蒙为例）
 
 | Skill | 用途 |
 |-------|------|
-| `ai-team-pt-hm-coder` | 状态管理 V1/V2、MCP LSP、编码模板 |
-| `ai-team-pt-hm-tester` | ohosTest 完整测试流程 |
-| `ai-team-pt-hm-ui-test` | 真机 UI 自动化测试（devecocli ui/log 驱动 + 运行时取证） |
-| `ai-team-pt-hm-reviewer` | hdc 启动验证、签名检查、hilog |
-| `ai-team-pt-hm-build` | 编译工具 |
-| `ai-team-pt-hm-project-init` | 项目初始化 |
-| `ai-team-pt-hm-project-module-init` | HAR/HSP 模块创建 |
-| `ai-team-pt-hm-project-package-init` | OHPM 包预装 |
-| `ai-team-pt-hm-template-*` | 编码模板（6 个） |
-| `ai-team-pt-hm-arkts-*` | 性能/安全/编码规范（3 个） |
+| `ai-team-dev-pt-hm-role-coder` | 状态管理 V1/V2、MCP LSP、编码模板 |
+| `ai-team-dev-pt-hm-role-tester` | ohosTest 完整测试流程 |
+| `ai-team-dev-pt-hm-ui-test` | 真机 UI 自动化测试（devecocli ui/log 驱动 + 运行时取证） |
+| `ai-team-dev-pt-hm-role-reviewer` | hdc 启动验证、签名检查、hilog |
+| `ai-team-dev-pt-hm-build` | 编译工具 |
+| `ai-team-dev-pt-hm-project-init` | 项目初始化 |
+| `ai-team-dev-pt-hm-project-module-init` | HAR/HSP 模块创建 |
+| `ai-team-dev-pt-hm-project-package-init` | OHPM 包预装 |
+| `ai-team-dev-pt-hm-template-*` | 编码模板（6 个） |
+| `ai-team-dev-pt-hm-arkts-*` | 性能/安全/编码规范（3 个） |
 
 ### 通用工具 Skill
 
@@ -243,10 +243,10 @@ docs/ai-team-dev/
 
 ## 十一、流程精简规则
 
-| 需求类型 | 流程 |
-|----------|------|
-| 新项目 / 新模块 / 新页面 / 功能修改 | 需求 → 开发 → 测试 → 审查 |
-| Bug 修复 | 开发 → 测试（用户在 0.1-A 选「不含需求人员」时跳过需求策划） |
+| 需求类型 | 参考清单（**实际组成以编排弹窗的用户多选为准**） |
+|----------|--------------------------------------------------|
+| 新项目 / 新模块 / 新页面 / 功能修改 | 计划者 → 实现者 → 审查者（测试验证 + 代码审查） |
+| Bug 修复 | 实现者 → 审查者（测试验证）；用户未勾「计划者」时需求内联给实现者 |
 
 ---
 
@@ -254,23 +254,23 @@ docs/ai-team-dev/
 
 | 类型 | 置信度 | Skill | 说明 |
 |------|--------|-------|------|
-| 编排入口 | — | `ai-team-dev` | 轻量 PM |
-| 角色（通用） | ✅ | `ai-team-role-designer` | 需求策划 |
-| 角色（通用） | ✅ | `ai-team-role-coder` | 开发 |
-| 角色（通用） | ✅ | `ai-team-role-tester` | 测试 |
-| 角色（通用） | ✅ | `ai-team-role-reviewer` | 审查 |
-| 角色（鸿蒙特化） | ✅ | `ai-team-pt-hm-coder` | 鸿蒙开发特化 |
-| 角色（鸿蒙特化） | ✅ | `ai-team-pt-hm-tester` | 鸿蒙测试特化 |
-| 角色（鸿蒙特化） | ✅ | `ai-team-pt-hm-reviewer` | 鸿蒙审查特化 |
+| 编排入口 | — | `ai-team-dev` | 领域 PM |
+| 角色（领域） | ✅ | `ai-team-dev-role-designer` | 需求策划（原型 = planner） |
+| 角色（领域） | ✅ | `ai-team-dev-role-coder` | 开发（原型 = maker） |
+| 角色（领域） | ✅ | `ai-team-dev-role-tester` | 测试（原型 = reviewer · 维度「测试验证」） |
+| 角色（领域） | ✅ | `ai-team-dev-role-reviewer` | 审查（原型 = reviewer · 维度「代码审查」） |
+| 角色（鸿蒙特化） | ✅ | `ai-team-dev-pt-hm-role-coder` | 鸿蒙开发特化 |
+| 角色（鸿蒙特化） | ✅ | `ai-team-dev-pt-hm-role-tester` | 鸿蒙测试特化 |
+| 角色（鸿蒙特化） | ✅ | `ai-team-dev-pt-hm-role-reviewer` | 鸿蒙审查特化 |
 | 工具（通用） | — | `ai-team-tool-report` | 文档沉淀 |
 | 工具（通用） | — | `ai-team-tool-security` | 通用安全规范 |
 | 工具（通用） | — | `ai-team-tool-ui-ux` | UI 体验优化 |
-| 工具（鸿蒙） | — | `ai-team-pt-hm-build` | 编译 |
-| 工具（鸿蒙） | — | `ai-team-pt-hm-project-init` | 项目初始化 |
-| 工具（鸿蒙） | — | `ai-team-pt-hm-project-module-init` | HAR/HSP 模块创建 |
-| 工具（鸿蒙） | — | `ai-team-pt-hm-project-package-init` | OHPM 包预装 |
-| 工具（鸿蒙） | — | `ai-team-pt-hm-template-*` | 编码模板（6 个） |
-| 工具（鸿蒙） | — | `ai-team-pt-hm-arkts-*` | 性能/安全/编码（3 个） |
+| 工具（鸿蒙） | — | `ai-team-dev-pt-hm-build` | 编译 |
+| 工具（鸿蒙） | — | `ai-team-dev-pt-hm-project-init` | 项目初始化 |
+| 工具（鸿蒙） | — | `ai-team-dev-pt-hm-project-module-init` | HAR/HSP 模块创建 |
+| 工具（鸿蒙） | — | `ai-team-dev-pt-hm-project-package-init` | OHPM 包预装 |
+| 工具（鸿蒙） | — | `ai-team-dev-pt-hm-template-*` | 编码模板（6 个） |
+| 工具（鸿蒙） | — | `ai-team-dev-pt-hm-arkts-*` | 性能/安全/编码（3 个） |
 | 工具（通用） | — | `ai-team-tool-global-rule` | 全局约束规范（选项按钮/Token/文档精简等） |
 | 工具（通用） | — | `ai-team-tool-auto-tune` | 自我优化（全局） |
 | 工具（通用） | — | `ai-team-tool-debug-loop` | 协作调试循环（bug 修复时 AI-用户协作） |
@@ -298,9 +298,9 @@ docs/ai-team-dev/
 | **v10** | 2026-06-22 | 全局重命名为 hm-* | 所有 skill 统一 hm-* 前缀；空目录工作区直接作为项目根 |
 | **v11** | 2026-06-24~29 | 融合 GitHub skill | 集成 interview-me（意图澄清）、debugging（Stop-the-Line 诊断）、shipping（交付检查清单）|
 | **v12** | 2026-06-29~30 | **ai-team-dev 体系诞生** | 从 hm-* 拆出多 Agent 协同体系；新增 PM + 4 角色 + 置信度门禁 + auto-tune |
-| **ai-team-dev v1.0** | 2026-07-01~15 | **通用化 + 平台剥离** | 角色全部重命名（ai-team-role-*）；鸿蒙内容剥离为平台特化 skill（ai-team-pt-hm-*）；新增平台映射表实现跨平台动态适配；全局约束独立 |
+| **ai-team-dev v1.0** | 2026-07-01~15 | **通用化 + 平台剥离** | 角色全部重命名（ai-team-role-*）；鸿蒙内容剥离为平台特化 skill（ai-team-dev-pt-hm-*）；新增平台映射表实现跨平台动态适配；全局约束独立 |
 | **ai-team-dev v1.1** | 2026-07-16 | **架构规范升级** | 引入指令权威分层（[门禁] 硬约束/软建议）、强制歧义处理、异常处理标准化、Guardrail 输入校验；新增轻量/标准/完整三档复杂度路由；PM 瘦身 |
-| **ai-team-dev v1.2** | 2026-07-20 | **修复 PM 未纯调度** | 新项目初始化下沉到平台特化 skill 内部（`ai-team-pt-hm-project-init` 方式 A 重构）；PM 仅做调度与门禁 |
+| **ai-team-dev v1.2** | 2026-07-20 | **修复 PM 未纯调度** | 新项目初始化下沉到平台特化 skill 内部（`ai-team-dev-pt-hm-project-init` 方式 A 重构）；PM 仅做调度与门禁 |
 | **ai-team-dev v1.3** | 2026-07-21 | **Bug 修复协作调试** | 新增 `ai-team-tool-debug-loop` 工具 skill；PM 新增 Bug 修复模式检测；coder 收到 `mode: bug-fix` 时执行协作调试循环（AI 埋点→用户复现→读日志→诊断→修复） |
 | **ai-team-dev v1.4** | 2026-08-07 | **极简编码规范** | 新增 `ai-team-tool-minimal-code`（懒惰阶梯 7 级/根因修复/过度设计审查标签）；coder 通用编码规则与 reviewer 代码质量审查接入 |
 | **ai-team-dev v1.5** | 2026-08-10 | **复杂需求任务拆分 + 阶段式开发** | designer 产出任务清单；coder 逐个串行阶段式开发（逐任务编译 + 汇报确认）；全部完成后汇总 `coder-report.md`；PM 编排零改动 |
