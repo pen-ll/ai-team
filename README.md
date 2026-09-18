@@ -50,7 +50,7 @@ ai-team（领域无关内核 / 总 PM）
 | 需求 | 用户想到哪说到哪，AI 被动响应 | 需求角色主动穷举待确认细节，批量让用户确认 |
 | 质量 | 无强制门禁 | 角色自评置信度，低于阈值不放行下游 |
 | 沟通链路 | — | 角色间 `send_message` 直连，问题不经 PM 中转 |
-| 成本 | 低 | 独立会话 + skill 加载，简单任务约为单 Agent 的 1.5~2 倍 |
+| 成本 | 低 | 独立会话 + skill 加载，简单任务可能会稍微增加Token（已对简单任务优化） |
 
 > 因此引入**复杂度路由**：简单改动走轻量流程，复杂需求才拉起完整角色链，不做一刀切。
 
@@ -68,9 +68,9 @@ ai-team（领域无关内核 / 总 PM）
 
 | 层级 | 标识 | 承载 | 说明 |
 |------|------|------|------|
-| 领域 | `generic` | 内核内置流程 | 未命中任何已注册领域时的兜底：PM 现场推导角色组合（写作、策划、调研、决策分析、方案评审等） |
-| 领域 | `development` | `ai-team-dev` | 软件开发：需求策划 → 开发 → 测试 → 审查，含轻量/标准/完整三档复杂度路由 |
-| 平台 | `harmony` | `ai-team-pt-hm-*` | 鸿蒙开发：状态管理 V1/V2 选型、MCP LSP 语法校验、ohosTest、真机 UI 自动化测试、hdc 启动验证、DevEco 构建与项目初始化 |
+| 领域 | `generic` | 内核内置流程 | 未命中任何已注册领域时的兜底： <br> PM 现场推导角色组合（写作、策划、调研、决策分析、方案评审等） |
+| 领域 | `development` | `ai-team-dev` | 软件开发：需求策划 → 开发 → 测试 → 审查， <br> 含轻量/标准/完整三档复杂度路由 |
+| 平台 | `harmony` | `ai-team-pt-hm-*` | 鸿蒙开发：状态管理 V1/V2 选型、 <br> MCP LSP 语法校验、ohosTest、真机 UI 自动化测试、hdc 启动验证、DevEco 构建与项目初始化 |
 
 ---
 
@@ -80,15 +80,15 @@ ai-team（领域无关内核 / 总 PM）
 
 | 能力域 | 已实现能力 | 承载 Skill |
 |--------|-----------|-----------|
-| 需求与澄清 | 意图澄清（who/why/success/constraint）、主动穷举确认、需求结构化、角色规模适配检查、任务拆分、网页需求读取 | `ai-team-role-designer` · `ai-team-dev-role-designer` · `ai-team-tool-web-read` |
+| 需求与澄清 | 意图澄清（who/why/success/constraint）、主动穷举确认、需求结构化、角色规模适配检查、任务拆分、网页需求读取 | `ai-team-role-designer` · `ai-team-dev-role-designer` <br> · `ai-team-tool-web-read` |
 | 编排与调度 | 领域路由、动态角色推导、复杂度路由、团队调整、全自动/手动确认、会话回收 | `ai-team` · `ai-team-dev` · `ai-team-tool-role-composer` |
-| 实现与工程 | 技术选型、编码实现、语法校验、编译构建、极简编码、UI 四态与防抖、项目初始化 / 模块创建 / 依赖预装 / 编码模板 | `ai-team-role-coder` · `ai-team-pt-hm-coder` · `ai-team-tool-minimal-code` · `ai-team-tool-ui-ux` · `ai-team-pt-hm-build` · `ai-team-pt-hm-project-init` · `ai-team-pt-hm-project-module-init` · `ai-team-pt-hm-project-package-init` · `ai-team-pt-hm-template-v2` |
-| 测试与验证 | 单元测试（ohosTest）、边界维度清单、结论有效性校验、环境条件门禁、真机 UI 黑盒自动化、启动验证 | `ai-team-role-tester` · `ai-team-pt-hm-tester` · `ai-team-pt-hm-ui-test` · `ai-team-pt-hm-reviewer` |
-| 质量与门禁 | 置信度门禁、输入校验 Guardrail、编排深度门禁、对抗式审查、问题分级、过度设计审查 | `ai-team-tool-global-rule` · `ai-team-role-reviewer` · `ai-team-tool-minimal-code` |
+| 实现与工程 | 技术选型、编码实现、语法校验、编译构建、极简编码、UI 四态与防抖、项目初始化 / 模块创建 / 依赖预装 / 编码模板 | `ai-team-role-coder` · `ai-team-pt-hm-coder` <br>  · `ai-team-tool-minimal-code` · `ai-team-tool-ui-ux` <br>  · `ai-team-pt-hm-build` · `ai-team-pt-hm-project-init` <br>  · `ai-team-pt-hm-project-module-init`  <br> · `ai-team-pt-hm-project-package-init` <br>  · `ai-team-pt-hm-template-v2` |
+| 测试与验证 | 单元测试（ohosTest）、边界维度清单、结论有效性校验、环境条件门禁、真机 UI 黑盒自动化、启动验证 | `ai-team-role-tester` · `ai-team-pt-hm-tester` <br>  · `ai-team-pt-hm-ui-test` · `ai-team-pt-hm-reviewer` |
+| 质量与门禁 | 置信度门禁、输入校验 Guardrail、编排深度门禁、对抗式审查、问题分级、过度设计审查 | `ai-team-tool-global-rule` · `ai-team-role-reviewer` <br>  · `ai-team-tool-minimal-code` |
 | 安全与合规 | 死循环检测阈值、黑灰产/供应链攻击红线、敏感信息保护、依赖安装确认 | `ai-team-tool-security` · `ai-team-pt-hm-arkts-security` |
 | 调试与排障 | 定位手段成本分级、协作调试循环、平台日志读取 | `ai-team-tool-debug-loop` |
 | 协作与交互 | 选项按钮规范、跨角色消息、报告事实源、冲突兜底、风险提示、用户协作成本优先 | `ai-team-tool-global-rule` · `ai-team-tool-report` |
-| 平台适配与规范 | 平台映射表、DevEco 路径探测、签名检查、设备错误码、ArkTS 编码/性能/安全规范 | `skills/ai-team-dev/platform-map.md` · `ai-team-pt-hm-build` · `ai-team-pt-hm-arkts-coding-rules` · `ai-team-pt-hm-arkts-performance` · `ai-team-pt-hm-arkts-security` · `ai-team-pt-hm-reviewer` |
+| 平台适配与规范 | 平台映射表、DevEco 路径探测、签名检查、设备错误码、ArkTS 编码/性能/安全规范 | `skills/ai-team-dev/platform-map.md` <br>  · `ai-team-pt-hm-build` · `ai-team-pt-hm-arkts-coding-rules` <br>  · `ai-team-pt-hm-arkts-performance` · `ai-team-pt-hm-arkts-security` <br>  · `ai-team-pt-hm-reviewer` |
 | 自我优化 | 静默自检、优化建议汇总、变更日志维护 | `ai-team-tool-auto-tune` |
 
 ### 2.2 分层架构
@@ -107,9 +107,9 @@ flowchart TB
 
 | 层 | 职责 | 关键文件 |
 |----|------|----------|
-| ① 通用内核 | 领域识别、路由、PM 编排、动态角色推导、通用置信度门禁 | `skills/ai-team/SKILL.md`、`skills/ai-team/domain-map.md` |
-| ② 领域层 | 该领域的流程编排、角色映射、产出物规范 | `skills/ai-team-dev/SKILL.md`、`skills/ai-team-dev/platform-map.md` |
-| ③ 角色层 | 各角色的本职工作流与置信度自评 | `ai-team-role-*`、`ai-team-dev-role-designer` |
+| ① 通用内核 | 领域识别、路由、PM 编排、动态角色推导、通用置信度门禁 | `skills/ai-team/SKILL.md`、 <br> `skills/ai-team/domain-map.md` |
+| ② 领域层 | 该领域的流程编排、角色映射、产出物规范 | `skills/ai-team-dev/SKILL.md`、 <br> `skills/ai-team-dev/platform-map.md` |
+| ③ 角色层 | 各角色的本职工作流与置信度自评 | `ai-team-role-*`、 <br> `ai-team-dev-role-designer` |
 | ④ 平台特化层 | 覆盖/补充通用角色的平台相关步骤 | `ai-team-pt-hm-*` |
 | ⑤ 工具层 | 跨领域通用能力（约束、文档、安全、调试、优化等） | `ai-team-tool-*` |
 
@@ -141,8 +141,8 @@ flowchart TB
 
 | 扩展目标 | 操作 | 影响范围 |
 |----------|------|----------|
-| 新增领域 | `skills/ai-team/domain-map.md` 加一行：`\| 标识 \| 名称 \| use_skill {领域PM} \| 触发特征 \|` | 内核零改动 |
-| 新增平台 | `skills/ai-team-dev/platform-map.md` 加一行（coder/tester/reviewer 三列可留空），并在 `ai-team-dev-role-designer` 的平台识别表补关键词 | 通用角色零改动 |
+| 新增领域 | `skills/ai-team/domain-map.md`  <br> 加一行：`\| 标识 \| 名称 \| use_skill {领域PM} \| 触发特征 \|` | 内核零改动 |
+| 新增平台 | `skills/ai-team-dev/platform-map.md`  <br> 加一行（coder/tester/reviewer 三列可留空），并在 `ai-team-dev-role-designer` 的平台识别表补关键词 | 通用角色零改动 |
 
 完整步骤（目录结构、frontmatter、产出路径、验证方式）见 [十二、扩展指南](#十二扩展指南新增领域与平台)。
 
@@ -302,10 +302,10 @@ flowchart TD
 
 | 机制 | 说明 |
 |------|------|
-| 下游把关上游 | 输入校验 Guardrail：前置产出缺关键字段直接阻塞，不让不合格产出流入下游 |
+| 下游把关上游 | 输入校验 Guardrail：<br>前置产出缺关键字段直接阻塞，不让不合格产出流入下游 |
 | 审查方质疑实现方 | 审查发现按分级反馈给对应角色，要求修复 🔴/🟡 项 |
-| 实现方可反驳审查 | RECONCILE 四分类——**契约误读**（先澄清契约再重新归类）/ **有效且可修复**（返回修复）/ **有效但为取舍**（记录 trade-off 交用户决策）/ **误报**（记录并反思上下文缺失）。以产物原文为唯一裁决依据，既不因反驳就盲从，也不因"审查是权威"就固执 |
-| 测试方区分归属 | 测试失败先判归属：测试自身问题自行修复；产品代码缺陷反馈开发，不自行修改产品代码 |
+| 实现方可反驳审查 | RECONCILE 四分类 <br> ——**契约误读**（先澄清契约再重新归类）/ **有效且可修复**（返回修复）/ **有效但为取舍**（记录 trade-off 交用户决策）/ **误报**（记录并反思上下文缺失）。 <br> 以产物原文为唯一裁决依据，既不因反驳就盲从，也不因"审查是权威"就固执 |
+| 测试方区分归属 | 测试失败先判归属：测试自身问题自行修复； <br> 产品代码缺陷反馈开发，不自行修改产品代码 |
 | 高风险改动对抗审查 | 只输出问题不输出优点，且输入隔离（不带上游结论），专门寻找"会让本次交付失败"的缺陷 |
 | 无法达成共识时 | 各自向 PM 说明观点 → PM 汇总 → 用户裁决 → PM 将结论回传相关角色 |
 
@@ -559,6 +559,12 @@ Copy-Item -Recurse ai-team* "$HOME\.agents\skills\"
 | **选择 skill（推荐）** | 在对话中选中 `ai-team` skill，再描述需求 | 最稳妥，不依赖关键词匹配 |
 | **自动触发** | 直接在对话中描述需求，描述里含触发词时自动触发 `ai-team` | 更省事，需要命中关键词 |
 
+<div align="center">
+<img src="./asserts/how-to-use-screenshot.jpg" alt="在 CodeBuddy 中引用 ai-team skill 后描述需求" width="760"/>
+<br/>
+<sub>方式一示意：输入框引用 <code>ai-team</code> skill，再描述需求</sub>
+</div>
+
 **触发词**：复杂问题、多角色、多专家、帮我分析 / 策划 / 调研 / 评审、编码、开发、功能、模块、页面、bug、崩溃、报错、重构、App、小程序、HarmonyOS。
 
 入口只有 `ai-team` 一个，它负责领域判定与路由：命中已注册领域则委托对应领域 PM（开发场景 → `ai-team-dev`），未命中则走通用动态编排。其余 skill（领域 PM / 角色 / 工具 / 平台特化）由 PM 按门禁加载，不需要手动选择。
@@ -595,7 +601,7 @@ Copy-Item -Recurse ai-team* "$HOME\.agents\skills\"
 
 | 代价 | 说明 |
 |------|------|
-| Token 消耗更高 | 独立会话 + skill 加载 + 跨角色沟通，简单任务约为单 Agent 的 1.5~2 倍 |
+| Token 消耗更高 | 独立会话 + skill 加载 + 跨角色沟通，简单任务可能会稍微增加Token（已对简单任务优化） |
 | 调度有延迟 | PM 等待汇报 + 角色间沟通往返 |
 | 依赖模型能力 | 低于推荐门槛的模型无法稳定 spawn 角色，流程会退化为主会话内执行 |
 | 编排深度限制 | 最多 1 层（PM → 角色），更深的分工需由 PM 拆分而非角色自行扩展 |
