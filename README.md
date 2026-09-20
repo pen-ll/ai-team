@@ -7,7 +7,7 @@
 把复杂任务拆给多个角色 Agent 接力完成：独立会话、交叉校验、置信度门禁、领域与平台均可插拔。
 
 [![License](https://img.shields.io/badge/License-MIT-yellow)](./LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.0-green)](#12-版本历史)
+[![Version](https://img.shields.io/badge/Version-2.0-green)](#14-版本历史)
 [![Skills](https://img.shields.io/badge/Skills-37-blue)](#八skill-清单)
 [![Domains](https://img.shields.io/badge/Domains-dev%20%C2%B7%20writing%20%2B%20generic-purple)](#13-已内置领域与平台)
 [![Platform](https://img.shields.io/badge/Platform-HarmonyOS-orange)](#13-已内置领域与平台)
@@ -37,7 +37,7 @@ flowchart LR
     U -. "过程中随时确认 / 纠偏" .-> D
 ```
 
-> 图中的 **98% 达成率** 为作者在自用场景下的实测结果，非基准测试；实际结果随任务复杂度与模型能力而异。
+> 图中的 **达成率** 为作者在自用场景下的实测结果，非基准测试；实际结果随**任务复杂度**与**模型能力**而异。
 
 框架按 **内核 → 领域 → 平台** 三层组织，**领域与平台都是可插拔的**：
 
@@ -90,7 +90,7 @@ ai-team（领域无关内核 / 总 PM）
 
 ---
 
-### 1.2 版本历史
+### 1.4 版本历史
 
 框架采用**统一版本号**——不是单个 skill 的版本，而是整套框架（内核 + 全部领域 + 全部角色）的版本；版本号同时标注在三个编排入口（`ai-team` / `ai-team-dev` / `ai-team-write`）的正文顶部。
 
@@ -110,12 +110,12 @@ ai-team（领域无关内核 / 总 PM）
 | 需求与澄清 | 意图澄清（who/why/success/constraint）、主动穷举确认、需求结构化、角色清单适配检查、任务拆分、网页需求读取 | `ai-team-role-planner` · `ai-team-dev-role-designer` <br> · `ai-team-tool-web-read` |
 | 编排与调度 | 领域路由、动态角色推导、**角色多选编排**（按原型分组）、团队调整、审查维度多实例、全自动/手动确认、会话回收 | `ai-team` · `ai-team-dev` · `ai-team-write` · `ai-team-tool-role-composer` |
 | 实现与工程 | 技术选型、编码实现、语法校验、编译构建、极简编码、UI 四态与防抖、项目初始化 / 模块创建 / 依赖预装 / 编码模板 | `ai-team-role-maker` · `ai-team-dev-role-coder` <br>  · `ai-team-dev-pt-hm-role-coder` · `ai-team-tool-minimal-code` · `ai-team-tool-ui-ux` <br>  · `ai-team-dev-pt-hm-build` · `ai-team-dev-pt-hm-project-init` <br>  · `ai-team-dev-pt-hm-project-module-init`  <br> · `ai-team-dev-pt-hm-project-package-init` <br>  · `ai-team-dev-pt-hm-template-v2` |
-| 测试与验证 | 单元测试（ohosTest）、边界维度清单、结论有效性校验、环境条件门禁、真机 UI 黑盒自动化、启动验证 | `ai-team-role-reviewer` · `ai-team-dev-role-tester` <br>  · `ai-team-dev-role-reviewer` · `ai-team-dev-pt-hm-role-tester` <br>  · `ai-team-dev-pt-hm-ui-test` |
+| 测试与验证 | 单元测试、边界维度清单、结论有效性校验、环境条件门禁、启动验证 | `ai-team-role-reviewer` · `ai-team-dev-role-tester` <br>  · `ai-team-dev-role-reviewer` |
 | 质量与门禁 | 置信度门禁、输入校验 Guardrail、编排深度门禁、对抗式审查、问题分级、过度设计审查 | `ai-team-tool-global-rule` · `ai-team-role-reviewer` <br>  · `ai-team-tool-minimal-code` |
 | 安全与合规 | 死循环检测阈值、黑灰产/供应链攻击红线、敏感信息保护、依赖安装确认 | `ai-team-tool-security` · `ai-team-dev-pt-hm-arkts-security` |
 | 调试与排障 | 定位手段成本分级、协作调试循环、平台日志读取 | `ai-team-tool-debug-loop` |
 | 协作与交互 | 选项按钮规范、跨角色消息、报告事实源、冲突兜底、风险提示、用户协作成本优先 | `ai-team-tool-global-rule` · `ai-team-tool-report` |
-| 平台适配与规范 | 平台映射表、DevEco 路径探测、签名检查、设备错误码、ArkTS 编码/性能/安全规范 | `skills/ai-team-dev/platform-map.md` <br>  · `ai-team-dev-pt-hm-build` · `ai-team-dev-pt-hm-arkts-coding-rules` <br>  · `ai-team-dev-pt-hm-arkts-performance` · `ai-team-dev-pt-hm-arkts-security` <br>  · `ai-team-dev-pt-hm-role-reviewer` |
+| **平台特化（`harmony`）** | 平台映射表、DevEco 路径探测、签名检查、设备错误码、ohosTest 测试、真机 UI 自动化、ArkTS 编码 / 性能 / 安全规范 | `skills/ai-team-dev/platform-map.md` <br>  · `ai-team-dev-pt-hm-build` · `ai-team-dev-pt-hm-arkts-coding-rules` <br>  · `ai-team-dev-pt-hm-arkts-performance` · `ai-team-dev-pt-hm-arkts-security` <br>  · `ai-team-dev-pt-hm-role-tester` · `ai-team-dev-pt-hm-role-reviewer` · `ai-team-dev-pt-hm-ui-test` |
 | 创作编排（`writing`） | S0-S4 阶段路由、五类角色接力、设定集单写多读、章节精简（brief）作跨章记忆、多口味读者团并行实例 | `ai-team-write` · `ai-team-write-pt-long` <br>  · `-role-editor` · `-role-architect` <br>  · `-role-writer` · `-role-reader` |
 | 内容质量与门禁 | 审稿七维判据、结构门禁 G1-G6、伏笔状态与健康度、设定漂移校验、文风一致性、内容裁决留痕、跨口味分歧不合并 | `ai-team-write-role-critic` <br>  · `ai-team-write-role-editor` · `skills/ai-team-write/standards/` |
 | 内容市场与商业 | 竞品对标与雷同度判定、差异化定位、赛道价值与平台适配、爽点密度检查、体量更新策略、发布包装 | `ai-team-write-role-market` <br>  · `ai-team-write-role-commercial` |
@@ -218,7 +218,7 @@ flowchart TD
     B --> C["PM：编排确认（一次弹窗）<br/>角色多选（按原型分组）+ 全自动 / 手动确认"]
     C --> D["计划者 Agent（planner）<br/>深挖需求 + 识别 platform + 任务拆分"]
     D --> E["实现者 Agent（maker）<br/>查 platform-map → 加载平台特化 → 编码 + 编译验证"]
-    E --> F["审查者 · 测试验证<br/>用例设计 → ohosTest / 真机 UI 自动化"]
+    E --> F["审查者 · 测试验证<br/>用例设计 → 单元测试 + 真机验证（按平台特化）"]
     F --> G["审查者 · 代码审查<br/>代码审查 + 交付检查 + 启动验证"]
     G --> H["PM 汇总结果<br/>（可选流程复盘）→ 回收团队"]
 
@@ -248,6 +248,8 @@ flowchart TD
 
 ## 五、主要功能
 
+> **层级归属约定**：本节各条目**只写框架级通用能力**。凡只在某个**平台**或**形态**成立的（`鸿蒙` / `HarmonyOS` / `ArkTS` / `DevEco` / `hdc` / `hilog` / `ohosTest` / `devecocli` / `真机`，或长篇形态的按批推进等），**一律单独成块并显式标注** `> **平台特化（harmony）**` / `> **形态特化（long）**`，**不与通用能力混列**。领域级内容见 §4.2 与各 `skills/*/README.md`。
+
 ### 5.1 需求与澄清
 
 - **意图澄清**：需求模糊时按 `who / why / success / constraint` 逐项追问，一次只问一个问题，AI 先写假设与置信度
@@ -270,7 +272,7 @@ flowchart TD
 | 机制 | 说明 |
 |------|------|
 | 置信度门禁 | 检查清单 60 分 + 主观补充 40 分；≥85% 放行 / 70-84% 迭代 / <70% 用户介入。由角色**自评**，PM 只按信号放行 |
-| 输入校验 Guardrail | 下游读取上游产出后校验关键字段（platform / 需求类型 / 前置产出物），缺失即阻塞并上报 |
+| 输入校验 Guardrail | 下游读取上游产出后校验关键字段（前置产出物 / 本领域必填字段），缺失即阻塞并上报 |
 | 编排深度门禁 | 编排最多 1 层（PM → 角色），角色不得再 spawn 子 agent |
 | 对抗式审查 | 高风险改动（核心逻辑 / 安全 / 状态管理 / 数据迁移）改为只输出问题、不输出优点，且输入隔离（不采信上游"已自测通过"的表述） |
 | 问题分级 | 🔴 blocker（阻塞交付）/ 🟡 suggestion（应修复）/ 💭 nit（记录即可），反馈遵循「问题 + 为什么 + 建议」 |
@@ -278,12 +280,13 @@ flowchart TD
 
 ### 5.4 测试与验证
 
-- **单元测试**：完整功能必须补全测试并自动运行（鸿蒙侧为 ohosTest 全流程）
+- **单元测试**：完整功能必须补全测试并自动运行，不接受「只跑通主路径」或「写了用例没执行」
 - **边界维度清单**：按 8 个维度逐项给结论（空与缺失 / 数值与分页 / 阈值临界 / 状态×触发矩阵 / 幂等 / 时序竞态 / 异常路径 / 数据可构造性），只写"覆盖边界"不算执行
 - **结论有效性**：构建产物须晚于源码改动、安装后须确保运行新版本、代码再变更则受影响结论必须重跑或标注失效——杜绝"看似通过、实则过期"
 - **环境条件门禁**：需要断网 / 锁屏 / 授权弹窗等条件时，设计期枚举 → 合并一次询问 → 执行前校验生效 → 执行后恢复核对
-- **真机 UI 黑盒自动化**（鸿蒙）：用官方 `devecocli` 的 `ui` / `log` 能力在真机驱动交互链路，抓取接口真实参数与运行日志；不可用时降级 `hdc shell uinput` + `hilog`
 - **启动验证**：安装启动、crash 检查、核心流程冒烟
+
+> **平台特化（`harmony`）**：单元测试 = **`ohosTest` 全流程**；**真机 UI 黑盒自动化** = 用官方 `devecocli` 的 `ui` / `log` 能力在真机驱动交互链路、抓取接口真实参数与运行日志，不可用时降级 `hdc shell uinput` + `hilog`；启动验证用 `hdc` 检查进程与 `hilog` 崩溃记录。实现见 `ai-team-dev-pt-hm-role-tester` · `-pt-hm-ui-test` · `-pt-hm-role-reviewer`。
 
 ### 5.5 安全与工程规范
 
@@ -298,16 +301,20 @@ flowchart TD
 | 序 | 手段 | 成本 |
 |---|------|------|
 | 1 | 代码路径推理（分支 / 判空 / 时序 / 边界） | 0 |
-| 2 | 已有日志（hilog / 埋点 / 请求 URL / 崩溃日志） | 0（不改代码） |
-| 3 | 自动化复现（单测固化 / 真机 UI CLI 驱动链路） | 低~中 |
+| 2 | 已有日志（埋点 / 请求记录 / 系统日志 / 崩溃日志） | 0（不改代码） |
+| 3 | 自动化复现（单测固化 / 按平台能力驱动交互链路） | 低~中 |
 | 4 | 新增最小化诊断日志 | 高（改码 + 重装 + 复现） |
 | 5 | 二分 / 回滚定位 | 中 |
 
 > 门禁：不得跳过前 3 项直接埋点；也不得停在代码推理就断言根因——推理只能提出假设，需运行时证据才能定性。
 
+> **平台特化（`harmony`）**：日志取 `hilog`；自动化复现用 `devecocli` / `hdc shell uinput` 驱动真机链路。实现见 `ai-team-tool-debug-loop` + `ai-team-dev-pt-hm-ui-test`。
+
 ### 5.7 自我优化
 
-每次任务收尾由角色与 PM 静默自检：流程通畅时不产生任何输出；仅在反复试错 ≥ 3 次、门禁卡在阈值附近、选项覆盖不全等真实阻碍时，沉淀一条优化建议并汇总进交付报告，同时维护 `CHANGELOG.md`。建议只记录、不自动改写 skill，是否采纳由使用者决定。
+任务收尾时 PM 弹窗询问**是否复盘本次流程**（默认不复盘）：选择复盘则加载 `ai-team-tool-auto-tune` → 向各角色收集**流程层**反馈（卡住 / 缺信息 / 多余往返，不问内容质量）+ PM 自检编排与门禁 → 产出 `optimization-report.md` 并给用户看建议摘要。
+
+**边界**：必须在会话回收**之前**收集（回收后角色不可达）；报告写在任务目录，**不写 `CHANGELOG.md`**；**只产出建议、不修改任何 skill 文件**，是否采纳由使用者决定。
 
 ---
 
@@ -354,7 +361,7 @@ flowchart TD
 
 ## 七、典型场景
 
-### 7.1 场景泳道：新建鸿蒙 App（完整模式）
+### 7.1 场景泳道：新建鸿蒙 App（全角色）
 
 以"用 ai-team-dev 创建一个 Todo App"为例，标注各阶段与报告沉淀：
 
@@ -400,7 +407,7 @@ sequenceDiagram
     R-->>PM: 完成信号（状态）
 
     Note over U,PM: 阶段 5 · 收尾
-    PM->>U: 汇总结果 + 自我优化建议 + 回收团队
+    PM->>U: 汇总结果（可选流程复盘）→ 回收团队
 ```
 
 | 阶段 | 执行角色 | 关键动作 | 沉淀报告 |
@@ -410,7 +417,7 @@ sequenceDiagram
 | 2 | 开发 | 项目初始化 → 编码 → 语法校验 → 编译验证 | `coder-report.md`（多任务另含 `coder-report-task-{N}.md`） |
 | 3 | 测试 | ohosTest 单测 +（可选）真机 UI 自动化 | `tester-report.md` |
 | 4 | 审查 | 代码审查 + 交付检查 + 启动验证 | `reviewer-report.md` |
-| 5 | PM | 汇总结果 + 自我优化建议 + 回收团队 | — |
+| 5 | PM | 汇总结果（可选流程复盘）→ 回收团队 | — |
 
 > 报告中的置信度、最终清单、platform 等字段通过完成信号（`send_message`）传给 PM；报告本体是下游角色的唯一事实源，**单写多读**。
 
@@ -546,25 +553,25 @@ sequenceDiagram
 | **选择 skill（推荐）** | 在对话中选中 `ai-team` skill，再描述需求 | 最稳妥，不依赖关键词匹配 |
 | **自动触发** | 直接在对话中描述需求，描述里含触发词时自动触发 `ai-team` | 更省事，需要命中关键词 |
 
+> **触发词**：复杂问题、多角色、多专家、帮我分析 / 策划 / 调研 / 评审、编码、开发、功能、模块、页面、bug、崩溃、报错、重构。
+
 <div align="center">
 <img src="./assets/how-to-use-screenshot.jpg" alt="在 CodeBuddy 中引用 ai-team skill 后描述需求" width="760"/>
 <br/>
 <sub>方式一示意：输入框引用 <code>ai-team</code> skill，再描述需求</sub>
 </div>
 
-**触发词**：复杂问题、多角色、多专家、帮我分析 / 策划 / 调研 / 评审、编码、开发、功能、模块、页面、bug、崩溃、报错、重构、App、小程序、HarmonyOS。
 
 入口只有 `ai-team` 一个，它负责领域判定与路由：命中已注册领域则委托对应领域 PM（开发场景 → `ai-team-dev`），未命中则走通用动态编排。其余 skill（领域 PM / 角色 / 工具 / 平台特化）由 PM 按门禁加载，不需要手动选择。
 
 ```
-# 方式一：先选 ai-team skill，再描述需求（最稳妥）
-把 X 模块重构成 Y 架构
+# 方式一：描述需求时带上 ai-team skill（推荐）
+/ai-team 把 X 模块重构成 Y 架构
 
 # 方式二：不选 skill，描述里带触发词自动触发
-帮我分析一下这个方案的风险
+- 帮我拉个团队，分析一下这个方案的风险
+- 帮我拉个团队，一起重构下该项目代码
 ```
-
-> 使用者的介入点通常只有两处：**回答需求角色的提问 → 确认 PM 的汇总结果**。其余编码、编译、测试、审查按流程自动流转。
 
 ### 安装
 
@@ -654,9 +661,9 @@ Copy-Item -Recurse ai-team* "$HOME\.agents\skills\"
 
 | 代价 | 说明 |
 |------|------|
-| Token 消耗更高 | 独立会话 + skill 加载 + 跨角色沟通，简单任务可能会稍微增加Token（已对简单任务优化） |
-| 调度有延迟 | PM 等待汇报 + 角色间沟通往返 |
-| 依赖模型能力 | 低于推荐门槛的模型无法稳定 spawn 角色，流程会退化为主会话内执行 |
+| Token 消耗 | 独立会话 + skill 加载 + 跨角色沟通，简单任务可能会稍微增加Token（已对简单任务优化） |
+| 调度有些许延迟 | PM 等待汇报 + 角色间沟通往返 |
+| 依赖模型能力 | 低于推荐门槛的模型（ds flash4）无法稳定 spawn 角色，流程会退化为主会话内执行 |
 | 编排深度限制 | 最多 1 层（PM → 角色），更深的分工需由 PM 拆分而非角色自行扩展 |
 
 > 适用判据：涉及多个文件、有独立测试价值、需求存在歧义或涉及架构决策的任务适合多 Agent；单文件改文案/样式直接单 Agent 更高效。
