@@ -10,7 +10,7 @@ allowed-tools: Read, Glob, Grep, Agent, TeamCreate, SendMessage, AskUserQuestion
 
 # AI 多 Agent 协同 — 软件开发领域（`development`）
 
-> **框架版本：2.0** —— 全框架**统一版本号**（全部 skill 共享），版本历史见根 `README.md`。
+> **框架版本：2.0** —— 全框架**统一版本号**（全部 skill 共享）。
 
 ## 角色定位
 
@@ -179,8 +179,8 @@ task(
 
 | 门禁 | 判据出处 | 执行者 |
 |------|----------|--------|
-| 编译 / 构建 BUILD SUCCESSFUL | `ai-team-tool-global-rule` §三（仅开发领域） | coder |
-| 语法校验（平台 LSP / lint） | `ai-team-tool-global-rule` §三 | coder |
+| 编译 / 构建 BUILD SUCCESSFUL | `ai-team-dev-role-coder` §七 + 平台特化编译 skill | coder |
+| 语法校验（平台 LSP / lint） | `ai-team-dev-role-coder` §六 + 平台特化校验流程 | coder |
 | 测试通过 + 边界维度覆盖 | `ai-team-dev-role-tester` 门禁 | tester |
 | 交付前检查 + 启动验证 | `ai-team-dev-role-reviewer` 门禁 | reviewer |
 
@@ -211,7 +211,7 @@ PM 在阶段 0 前显式 `use_skill ai-team-tool-global-rule`；各角色由自�
 
 > **[门禁] 编排深度**：本入口采用「PM → 角色」一层编排，角色内部禁止再 spawn 子 agent 或嵌套 team。角色需要更细分工时，将子任务写入产出文档或 `send_message` 请求 PM 拆分。
 
-> **[门禁] 平台差异封装在特化 skill 内**：PM 只传 `platform` 与映射表路径，**不在 prompt 内联任何平台专属步骤**。
+> **[门禁] 平台差异封装在特化 skill 内**：PM 只传 `platform` 与映射表 / 环境表路径，**不在 prompt 内联任何平台专属步骤或环境命令**。
 
 ## 全局配置
 

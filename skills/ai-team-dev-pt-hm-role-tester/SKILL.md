@@ -5,7 +5,7 @@ trigger: route-only
 user-invocable: false
 description: |
   鸿蒙平台特化 — 测试角色，含 ohosTest 完整测试流程。
-  触发场景：鸿蒙开发任务由平台映射表路由到 tester 时加载。
+  触发场景：platform=harmony 且承担 tester 角色时加载。
 ---
 
 # 鸿蒙平台特化 — 测试角色
@@ -13,6 +13,8 @@ description: |
 ## 触发
 
 当 platform=harmony 时加载。
+
+> **环境事实**：路径 / CLI 口径 / 版本决策 / 设备与 UI 驱动命令的**唯一来源是 `ai-team-dev-pt-hm-env`** —— **需要构建 / 安装 / 启动 / UI 驱动 / 日志时 `use_skill ai-team-dev-pt-hm-env`**，本 skill 不内联副本。
 
 ## 覆盖范围
 
@@ -49,7 +51,7 @@ description: |
 3. **MCP LSP 语法校验**（不可跳过）：
    - 对本次产生的 .ets 文件调用 MCP `deveco-mcp` / `check` 进行诊断
    - 若有错误则自动修复后重新校验，直到无错误
-   - 若 MCP 不可用 → 自动执行 `npx @deveco/deveco-cli@latest init --mcp` 初始化，初始化失败则用 `ask_followup_question` 提示用户
+   - 失败处置（工具未注册 / 无返回超时 / 重试上限）**按 `ai-team-dev-pt-hm-env` E2.2 分类执行**，环境路径与包口径见 E2 / E2.1（**禁止内联副本**）
 4. 编译主项目：**[门禁] 必须显式 `use_skill ai-team-dev-pt-hm-build`**（编译命令、DEVECO_SDK_HOME 路径探测均由 build skill 提供，禁止自行猜测/内联），确保 BUILD SUCCESSFUL
 5. 编译测试 HAP：`npx @deveco-test/deveco-cli@latest build --modules <module>@ohosTest`
 6. 安装并运行测试：`hdc install` + `aa test`

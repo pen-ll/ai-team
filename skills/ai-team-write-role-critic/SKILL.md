@@ -6,14 +6,14 @@ user-invocable: false
 context: fork
 description: |
   写作领域「审查者」扩展（原型 = reviewer · 维度 critic），按七维判据审查章节，并校验设定漂移、文风一致性与 G1-G6 结构门禁。
-  触发场景：由 ai-team-role-reviewer 第零步在 领域=writing 且 变体=critic 时加载，不单独 spawn。
+  触发场景：领域=writing 且变体=critic 时启用本扩展（不单独 spawn）。
 ---
 
 # 写作领域 — 审查者扩展（`writing` · 原型 reviewer · 维度 critic）
 
 ## 触发
 
-由 `ai-team-role-reviewer` 在 `领域=writing` 且 `变体=critic` 时经「第零步：领域适配」加载。**不单独 spawn**。本实例**只负责审稿这一个维度**。
+领域=writing 且变体=critic 时经「第零步：领域适配」启用。**不单独 spawn**。本实例**只负责审稿这一个维度**。
 
 ## 覆盖范围
 

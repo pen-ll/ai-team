@@ -6,14 +6,14 @@ user-invocable: false
 context: fork
 description: |
   写作领域「审查者」扩展（原型 = reviewer · 维度 reader），按指定口味对章节评分并给出读者视角反馈，同原型多实例并行。
-  触发场景：由 ai-team-role-reviewer 第零步在 领域=writing 且 变体=reader 时按口味各加载一个实例。
+  触发场景：领域=writing 且变体=reader 时启用本扩展（按口味各一实例）。
 ---
 
 # 写作领域 — 审查者扩展（`writing` · 原型 reviewer · 维度 reader × N 口味）
 
 ## 触发
 
-由 `ai-team-role-reviewer` 在 `领域=writing` 且 `变体=reader` 时经「第零步：领域适配」加载。**不单独 spawn**。
+领域=writing 且变体=reader 时经「第零步：领域适配」启用。**不单独 spawn**。
 
 > **本 skill 是审查者多实例的载体**：PM 按口味各 spawn 一个实例（如 `reader-1`=悬疑、`reader-2`=科幻），各写各报告、**不合并维度**。
 > 口味经 spawn prompt 的 **`口味`** 参数传入（领域扩展可在统一契约之外声明额外参数）。

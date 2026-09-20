@@ -1,6 +1,6 @@
 # ai-team-dev 多 Agent 协同设计文档
 
-> 最后更新：2026-08-20 | 状态：软件开发领域插件
+> 状态：软件开发领域插件
 
 ## 一、设计目标
 
@@ -79,9 +79,10 @@ ai-team-dev 采用 **Manager（集中式编排）** 模式——PM 集中调度�
 领域角色（本领域）  ai-team-dev-role-designer / -coder / -tester / -reviewer（覆盖基座差异）
 角色注册表       ai-team-dev/role-registry.md（角色、维度、预勾选条件、依赖、上限）
 角色平台特化     ai-team-dev-pt-{platform}-role-{变体}                  ✅ 有置信度
-工具（通用）     ai-team-tool-global-rule / role-composer / report / auto-tune / debug-loop / minimal-code / security / ui-ux / web-read
+工具（通用，跨领域） ai-team-tool-global-rule / role-composer / report / auto-tune / web-read
+工具（开发领域）  ai-team-dev-tool-minimal-code / security / ui-ux / debug-loop
 工具（平台特化）  ai-team-dev-pt-{platform}-build / project-init / project-module-init / project-package-init / template-* / arkts-*
-映射表          ai-team-dev/platform-map.md
+映射表          ai-team-dev/platform-map.md（平台 → 特化 skill 路由）
 ```
 
 ---
@@ -128,9 +129,7 @@ flowchart TD
 
 需求策划 Agent 识别目标平台 → 写入需求文档 → PM 读取后传给下游（用户**未勾选「计划者」**时无 designer，`platform` 由 PM 依据用户原始需求当场锁定）→ 下游查 `platform-map.md` 映射表加载特化 skill：
 
-| platform | coder 特化 | tester 特化 | reviewer 特化 |
-|----------|-----------|------------|--------------|
-| harmony | `ai-team-dev-pt-hm-role-coder` | `ai-team-dev-pt-hm-role-tester` | `ai-team-dev-pt-hm-role-reviewer` |
+平台 → 特化 skill 的映射以 `ai-team-dev/platform-map.md` 为**唯一事实源**（含环境特化 / UI 驱动列），本节不复制。
 
 > 新增平台：在映射表加一行 + 编写对应特化 skill，无需改动任何通用角色。
 
@@ -160,7 +159,7 @@ flowchart TD
 
 同 OpenAI Agents SDK 的 Guardrail 理念一致。每个角色在读取上游文档后、进入实质性工作前，校验关键字段是否存在（platform、需求类型、前置产出物），缺失则阻塞并向 PM 报告——防止上游产出不合格流入下游。
 
-### 4-A. 任务拆分 + 阶段式开发（复杂需求）
+### 4-A. 任务拆分 + 阶段式开发（完整模式复杂需求）
 
 复杂需求由 designer 判定是否拆分（功能点 > 3 / ≥ 3 页面或跨层 / 前置后置依赖 / context 溢出风险），产出需求文档内嵌 `## 任务清单` 表格并经用户确认；coder 识别任务清单后**逐个串行阶段式开发**——每任务编译验证 + 向用户汇报确认后继续，全部完成后产出汇总 `coder-report.md` 一次性通知 PM，PM 按原流程走全量 tester → reviewer。
 
@@ -180,13 +179,13 @@ flowchart TD
 | **强制歧义处理** | 模糊目标禁止猜测，必须向用户确认；"随便"不算确认 |
 | **工具优先于知识** | 先读文档再执行，不凭经验判断 |
 | **异常处理标准化** | 失败分四级：自动修复 / 告知用户 / 降级继续 / 阻塞报告，严禁捏造结果 |
-| **选项按钮设计** | 预设 2-4 选项 + 自定义选项 |
+| **选项按钮设计** | 见 `ai-team-tool-global-rule` §八（选项按钮设计规范） |
 | **Token 优化** | 不重复问、不冗余加载、不预读源码 |
 | **文档精简** | 结构化表格为主，禁止长段落/完整代码/诊断过程 |
 
 ### 6. 自我优化（auto-tune）
 
-每个角色流程结束后静默自检，仅置信度 < 90% 且有明显阻碍时向 PM 汇报。PM 汇总后附在交付报告末尾，自动管理仓库根目录的 `CHANGELOG.md`。
+按 `ai-team-tool-auto-tune` 执行：用户选择复盘时收集各角色流程层反馈，产出 `optimization-report.md`；是否修改 skill 与 `CHANGELOG.md` 由框架维护者手工决定，PM 不自动改动。
 
 ---
 
@@ -207,26 +206,32 @@ flowchart TD
 | `ai-team-dev-pt-hm-role-coder` | 状态管理 V1/V2、MCP LSP、编码模板 |
 | `ai-team-dev-pt-hm-role-tester` | ohosTest 完整测试流程 |
 | `ai-team-dev-pt-hm-ui-test` | 真机 UI 自动化测试（devecocli ui/log 驱动 + 运行时取证） |
+| `ai-team-dev-pt-hm-env` | 环境与工具链事实（路径 / CLI 口径 / SDK 版本决策 / 设备命令） |
 | `ai-team-dev-pt-hm-role-reviewer` | hdc 启动验证、签名检查、hilog |
 | `ai-team-dev-pt-hm-build` | 编译工具 |
 | `ai-team-dev-pt-hm-project-init` | 项目初始化 |
 | `ai-team-dev-pt-hm-project-module-init` | HAR/HSP 模块创建 |
 | `ai-team-dev-pt-hm-project-package-init` | OHPM 包预装 |
-| `ai-team-dev-pt-hm-template-*` | 编码模板（6 个） |
-| `ai-team-dev-pt-hm-arkts-*` | 性能/安全/编码规范（3 个） |
+| `ai-team-dev-pt-hm-template-*` | 编码模板（按需新增） |
+| `ai-team-dev-pt-hm-arkts-*` | 编码规则 / 性能 / 安全 / V2 响应式（4 个） |
 
-### 通用工具 Skill
+### 通用工具 Skill（跨领域）
 
 | Skill | 用途 |
 |-------|------|
 | `ai-team-tool-global-rule` | 全局约束规范 |
 | `ai-team-tool-auto-tune` | 自我优化 |
 | `ai-team-tool-report` | 文档沉淀规范 |
-| `ai-team-tool-security` | 通用安全规范（死循环检测/黑灰产/敏感信息/依赖确认） |
-| `ai-team-tool-ui-ux` | UI 体验优化（防抖/节流、Loading/Error/Empty/Content） |
-| `ai-team-tool-debug-loop` | 协作调试循环（bug 修复时 AI-用户协作） |
-| `ai-team-tool-minimal-code` | 极简编码规范（懒惰阶梯、根因修复、过度设计审查） |
 | `ai-team-tool-web-read` | 网页需求文档读取（HTML→Markdown + 图片本地化） |
+
+### 开发领域工具 Skill
+
+| Skill | 用途 |
+|-------|------|
+| `ai-team-dev-tool-security` | 通用安全规范（死循环检测/黑灰产/敏感信息/依赖确认） |
+| `ai-team-dev-tool-ui-ux` | UI 体验优化（防抖/节流、Loading/Error/Empty/Content） |
+| `ai-team-dev-tool-debug-loop` | 协作调试循环（bug 修复时 AI-用户协作） |
+| `ai-team-dev-tool-minimal-code` | 极简编码规范（懒惰阶梯、根因修复、过度设计审查） |
 
 ---
 
@@ -263,22 +268,27 @@ docs/ai-team-dev/
 | 角色（鸿蒙特化） | ✅ | `ai-team-dev-pt-hm-role-tester` | 鸿蒙测试特化 |
 | 角色（鸿蒙特化） | ✅ | `ai-team-dev-pt-hm-role-reviewer` | 鸿蒙审查特化 |
 | 工具（通用） | — | `ai-team-tool-report` | 文档沉淀 |
-| 工具（通用） | — | `ai-team-tool-security` | 通用安全规范 |
-| 工具（通用） | — | `ai-team-tool-ui-ux` | UI 体验优化 |
+| 工具（开发领域） | — | `ai-team-dev-tool-security` | 通用安全规范 |
+| 工具（开发领域） | — | `ai-team-dev-tool-ui-ux` | UI 体验优化 |
+| 工具（鸿蒙） | — | `ai-team-dev-pt-hm-env` | 环境与工具链事实（路径/CLI 口径/SDK 版本决策/驱动命令，触碰环境时按需读） |
+| 工具（鸿蒙） | — | `ai-team-dev-pt-hm-ui-test` | 真机 UI 自动化测试（ui/log 驱动 + 运行时取证） |
 | 工具（鸿蒙） | — | `ai-team-dev-pt-hm-build` | 编译 |
 | 工具（鸿蒙） | — | `ai-team-dev-pt-hm-project-init` | 项目初始化 |
 | 工具（鸿蒙） | — | `ai-team-dev-pt-hm-project-module-init` | HAR/HSP 模块创建 |
 | 工具（鸿蒙） | — | `ai-team-dev-pt-hm-project-package-init` | OHPM 包预装 |
-| 工具（鸿蒙） | — | `ai-team-dev-pt-hm-template-*` | 编码模板（6 个） |
-| 工具（鸿蒙） | — | `ai-team-dev-pt-hm-arkts-*` | 性能/安全/编码（3 个） |
+| 工具（鸿蒙） | — | `ai-team-dev-pt-hm-template-*` | 编码模板（按需新增） |
+| 工具（鸿蒙） | — | `ai-team-dev-pt-hm-arkts-*` | 编码规则 / 性能 / 安全 / V2 响应式（4 个） |
 | 工具（通用） | — | `ai-team-tool-global-rule` | 全局约束规范（选项按钮/Token/文档精简等） |
 | 工具（通用） | — | `ai-team-tool-auto-tune` | 自我优化（全局） |
-| 工具（通用） | — | `ai-team-tool-debug-loop` | 协作调试循环（bug 修复时 AI-用户协作） |
-| 工具（通用） | — | `ai-team-tool-minimal-code` | 极简编码规范（懒惰阶梯/根因修复/过度设计审查） |
+| 工具（开发领域） | — | `ai-team-dev-tool-debug-loop` | 协作调试循环（bug 修复时 AI-用户协作） |
+| 工具（开发领域） | — | `ai-team-dev-tool-minimal-code` | 极简编码规范（懒惰阶梯/根因修复/过度设计审查） |
 | 工具（通用） | — | `ai-team-tool-web-read` | 网页需求文档读取（HTML→Markdown + 图片本地化） |
-| 全局约束 | — | `ai-team-dev/platform-map.md` | 平台适配映射表 |
+| 全局约束 | — | `ai-team-dev/platform-map.md` | 平台适配映射表（路由，每角色第零步读） |
 
-> **核心原则**：通用部分不依赖任何平台特定内容，平台特化 skill 独立维护。
+> **核心原则**：
+> - 通用部分（`ai-team-tool-*`）不依赖任何**领域 / 平台**特定内容
+> - **领域专属**工具用领域命名空间（`ai-team-dev-tool-*` / `ai-team-write-tool-*`），避免其他领域误加载
+> - **平台专属**内容封装在平台特化 skill（`ai-team-dev-pt-{platform}-*`）内，通用层与领域层均不得内联
 
 ---
 
@@ -301,8 +311,8 @@ docs/ai-team-dev/
 | **ai-team-dev v1.0** | 2026-07-01~15 | **通用化 + 平台剥离** | 角色全部重命名（ai-team-role-*）；鸿蒙内容剥离为平台特化 skill（ai-team-dev-pt-hm-*）；新增平台映射表实现跨平台动态适配；全局约束独立 |
 | **ai-team-dev v1.1** | 2026-07-16 | **架构规范升级** | 引入指令权威分层（[门禁] 硬约束/软建议）、强制歧义处理、异常处理标准化、Guardrail 输入校验；新增轻量/标准/完整三档复杂度路由；PM 瘦身 |
 | **ai-team-dev v1.2** | 2026-07-20 | **修复 PM 未纯调度** | 新项目初始化下沉到平台特化 skill 内部（`ai-team-dev-pt-hm-project-init` 方式 A 重构）；PM 仅做调度与门禁 |
-| **ai-team-dev v1.3** | 2026-07-21 | **Bug 修复协作调试** | 新增 `ai-team-tool-debug-loop` 工具 skill；PM 新增 Bug 修复模式检测；coder 收到 `mode: bug-fix` 时执行协作调试循环（AI 埋点→用户复现→读日志→诊断→修复） |
-| **ai-team-dev v1.4** | 2026-08-07 | **极简编码规范** | 新增 `ai-team-tool-minimal-code`（懒惰阶梯 7 级/根因修复/过度设计审查标签）；coder 通用编码规则与 reviewer 代码质量审查接入 |
+| **ai-team-dev v1.3** | 2026-07-21 | **Bug 修复协作调试** | 新增 `ai-team-dev-tool-debug-loop` 工具 skill；PM 新增 Bug 修复模式检测；coder 收到 `mode: bug-fix` 时执行协作调试循环（AI 埋点→用户复现→读日志→诊断→修复） |
+| **ai-team-dev v1.4** | 2026-08-07 | **极简编码规范** | 新增 `ai-team-dev-tool-minimal-code`（懒惰阶梯 7 级/根因修复/过度设计审查标签）；coder 通用编码规则与 reviewer 代码质量审查接入 |
 | **ai-team-dev v1.5** | 2026-08-10 | **复杂需求任务拆分 + 阶段式开发** | designer 产出任务清单；coder 逐个串行阶段式开发（逐任务编译 + 汇报确认）；全部完成后汇总 `coder-report.md`；PM 编排零改动 |
 | **ai-team-dev v1.6** | 2026-08-12~13 | **审查增强 + 平台修复** | reviewer 反馈分级（🔴 blocker / 🟡 suggestion / 💭 nit）+「可靠性 & 可观测性审查」；coder 主观补充维度细化；DevEco 分平台完整路径探测；tester 措辞对齐 |
 | **ai-team-dev v1.7** | 2026-09-18 | **职责边界收敛 + 返工轮次门禁** | ① designer 蓝图模板「开发技术栈」→「平台与语言」，新增「技术实现细节排除清单」门禁（路由/包名/状态管理/存储/目录分层/编码模板/测试范围一律归 coder 第三步；**重构 / 架构类需求放开「现状基线 / 结构性目标 / 不可破坏契约」三类技术内容，仍不放选型**），planner 穷举确认限定为功能与验收口径；② coder 职责改为「编译验证 + 最小冒烟自验」且**不写测试**（测试代码与用例归 tester），hm-coder 新增冒烟自验命令表 + 置信度项；tester H1 明确测试代码归属、hm-build 诊断流程同步；③ 新增 `global-rule` §十二「跨角色返工总轮次上限 5」（**不按同一问题区分**、含报告/结论修订、双方独立计数、达阈值全员停止等用户裁决），maker/reviewer 协议与 dev PM 门禁同步接入；④ 鸿蒙 UI 测试固定 `sleep 2~6s` → 轮询等待目标节点（本地链路上限 2s）+ fling 建议 speed 8000~15000 |

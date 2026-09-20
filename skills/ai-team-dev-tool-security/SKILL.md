@@ -1,11 +1,11 @@
 ---
-name: ai-team-tool-security
+name: ai-team-dev-tool-security
 autoTrigger: false
 trigger: route-only
 user-invocable: false
 description: |
-  AI 多 Agent 协同的通用安全编码规范，跨平台通用。
-  触发场景：编码涉及敏感信息、死循环检测、依赖安装等安全场景时加载（由调用方按需加载）。
+  开发领域工具 — 通用安全编码规范（死循环检测、敏感信息、依赖确认、黑灰产）。
+  触发场景：编码涉及敏感信息、网络请求、依赖安装等安全场景时加载。
 ---
 
 # 通用安全编码规范

@@ -6,14 +6,14 @@ user-invocable: false
 context: fork
 description: |
   写作领域「计划者」扩展（原型 = planner · 变体 editor），负责基调定调、内容取舍裁决与阶段终审，是内容层唯一裁决者。
-  触发场景：由 ai-team-role-planner 第零步在 领域=writing 且 变体=editor 时加载，不单独 spawn。
+  触发场景：领域=writing 且变体=editor 时启用本扩展（不单独 spawn）。
 ---
 
 # 写作领域 — 计划者扩展（`writing` · 原型 planner · 变体 editor）
 
 ## 触发
 
-由 `ai-team-role-planner` 在 `领域=writing` 且 `变体=editor` 时经「第零步：领域适配」加载。**不单独 spawn**，仅补全/覆盖基座中标 `[领域扩展]` 的步骤。
+领域=writing 且变体=editor 时经「第零步：领域适配」启用。**不单独 spawn**，仅补全/覆盖基座中标 `[领域扩展]` 的步骤。
 
 ## 覆盖范围
 

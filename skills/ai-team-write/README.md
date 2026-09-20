@@ -1,8 +1,6 @@
 # ai-team 写作领域（`writing`）设计稿
 
-> **状态**：Phase 0 产出汇总稿，待用户确认后进入 Phase 1-4 落地
-> **输入**：`docs/ai-team/write-skill-260918/` 下 7 份领域标准（合计 ~1640 行）
-> **产出目标**：9 个 skill 目录（`skills/` 下）
+> **状态**：写作领域设计稿（已落地）
 
 ---
 
@@ -93,7 +91,7 @@
 | 11 | `skills/ai-team-write-role-commercial/` | 角色 | ≤150 | commercial §0-§5 |
 
 > 计数说明：#1/#2/#3 同属 `ai-team-write/` 一个目录，故实际为 **9 个目录**。
-> **关键设计**：完整标准（~1640 行）不塞进 SKILL.md（会破 ≤200 行门禁），作为**领域共享资产**放在 `ai-team-write/standards/`，角色按需 `read_file` 加载（与 `ai-team-dev/platform-map.md` 同一模式），保证**单一事实源、不漂移**。
+> **关键设计**：完整标准（~1640 行）不塞进 SKILL.md（会破 ≤250 行门禁），作为**领域共享资产**放在 `ai-team-write/standards/`，角色按需 `read_file` 加载（与 `ai-team-dev/platform-map.md` 同一模式），保证**单一事实源、不漂移**。
 
 **改动 4 个文件**：`skills/ai-team/domain-map.md`（注册 writing + 修 generic 示例）、`skills/ai-team-tool-report/SKILL.md`（追加写作领域产出物规范）、`README.md`（1.3 领域表 / 能力矩阵 / 导航 / 扩展指南）、`CHANGELOG.md`（里程碑条目）。
 

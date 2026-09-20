@@ -6,14 +6,14 @@ user-invocable: false
 context: fork
 description: |
   开发领域「审查者」扩展 · 维度 = 测试验证（原型 = reviewer），补充边界维度清单、环境条件门禁、测试执行与单测/真机 UI 两种执行手段。
-  触发场景：由 ai-team-role-reviewer 第零步在 领域=development 且 变体=tester 时加载，不单独 spawn。
+  触发场景：领域=development 且变体=tester 时启用本扩展（不单独 spawn）。
 ---
 
 # 开发领域 — 审查者扩展（`development` · 原型 reviewer · 维度 = 测试验证）
 
 ## 触发
 
-由 `ai-team-role-reviewer` 在 `领域=development` 且 `变体=tester` 时经「第零步：领域适配」加载。**不单独 spawn**。本实例**只负责测试验证这一个维度**，不越界做代码审查。
+领域=development 且变体=tester 时经「第零步：领域适配」启用。**不单独 spawn**。本实例**只负责测试验证这一个维度**，不越界做代码审查。
 
 ## 覆盖范围
 
@@ -31,7 +31,8 @@ description: |
 `read_file("{platform_map}")` → 匹配当前 `platform` → 命中 **tester 列** → `use_skill {对应特化 skill}`；未命中则不加载，按通用测试流程执行。
 
 > 特化 skill 覆盖测试框架、用例目录结构、构建与运行命令、环境条件校验命令等。
-> **真机 UI 自动化测试**属本维度的另一种执行手段：需要时加载 `use_skill ai-team-dev-pt-hm-ui-test`（含抓取真实请求参数与运行日志），**不新增维度**。
+> **环境相关事实由平台特化 skill 自行持有并按其指引按需读取**（通用扩展不承载任何平台环境知识）。
+> **真机 UI 自动化测试**属本维度的另一种执行手段：按 `{platform_map}` 的「UI 驱动」列命中则加载对应特化 skill（含抓取真实请求参数与运行日志），**不新增维度**。
 
 ## 二、输入校验追加项
 
@@ -132,5 +133,5 @@ description: |
 ```yaml
 artifact_path: "{artifact_dir}/tester-report.md"
 platform_map_skill_column: tester
-ui_test_skill: ai-team-dev-pt-hm-ui-test    # 真机 UI 自动化测试（按需）
+ui_test_skill: 见 {platform_map} 的「UI 驱动」列    # 真机 UI 自动化测试（按需，按平台查表加载）
 ```

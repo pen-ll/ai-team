@@ -7,14 +7,14 @@ context: fork
 agent: Plan
 description: |
   开发领域「计划者」扩展（原型 = planner），补充平台识别、技术层面需求识别与编译单元式任务拆分。
-  触发场景：由 ai-team-role-planner 第零步在 领域=development 且 变体=designer 时加载，不单独 spawn。
+  触发场景：领域=development 且变体=designer 时启用本扩展（不单独 spawn）。
 ---
 
 # 开发领域 — 计划者扩展（`development` · 原型 planner · 变体 designer）
 
 ## 触发
 
-由 `ai-team-role-planner` 在 `领域=development` 且 `变体=designer` 时经「第零步：领域适配」加载。**不单独 spawn**，仅补全/覆盖基座中标 `[领域扩展]` 的步骤。
+领域=development 且变体=designer 时经「第零步：领域适配」启用。**不单独 spawn**，仅补全/覆盖基座中标 `[领域扩展]` 的步骤。
 
 ## 覆盖范围
 
@@ -83,7 +83,7 @@ description: |
 
 > **默认行为**：无法判断时按非技术层面处理，跳过本节（避免冗余加载）。
 
-> **[门禁] 执行类工具禁加载**：designer 只加载约束/规范类资产，**禁止**加载执行类工具（`ai-team-tool-minimal-code` / `security` / `debug-loop` / `ui-ux` / `build` / `template` / 平台 coder 特化 skill 等）。designer 不参与技术选型、不写代码、不制定实现方案。
+> **[门禁] 执行类工具禁加载**：designer 只加载约束/规范类资产，**禁止**加载执行类工具（`ai-team-dev-tool-minimal-code` / `security` / `debug-loop` / `ui-ux` / `build` / `template` / 平台 coder 特化 skill 等）。designer 不参与技术选型、不写代码、不制定实现方案。
 
 > **[门禁] 技术实现细节排除清单**：下表内容属**实现侧决策**，designer **不得**写入蓝图、**不得**列入穷举确认选项，统一归 coder 第三步（由 coder 自动决定或直接问用户）。
 >

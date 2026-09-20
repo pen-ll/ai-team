@@ -5,7 +5,7 @@ trigger: route-only
 user-invocable: false
 description: |
   鸿蒙平台特化 — 代码审查角色，含 hdc 启动验证、签名检查、hilog crash 检查与设备错误码处理。
-  触发场景：鸿蒙开发任务由平台映射表路由到 reviewer 时加载。
+  触发场景：platform=harmony 且承担 reviewer 角色时加载。
 ---
 
 # 鸿蒙平台特化 — 代码审查角色
@@ -13,6 +13,8 @@ description: |
 ## 触发
 
 当 platform=harmony 时加载。
+
+> **环境事实**：路径 / CLI 口径 / 版本决策 / 设备命令的**唯一来源是 `ai-team-dev-pt-hm-env`** —— **需要编译 / 安装 / 启动 / 取日志时 `use_skill ai-team-dev-pt-hm-env`**，本 skill 不内联副本。
 
 ## 覆盖范围
 
@@ -80,7 +82,10 @@ use_skill ai-team-dev-pt-hm-build
 
 ### 启动应用（覆盖通用 reviewer 第五步）
 
+**[门禁] 必须先 `force-stop` 再 `aa start`**（`install -r` 不保证杀进程，直接 start 会跑旧代码）——命令与环境口径见 `ai-team-dev-pt-hm-env` E4：
+
 ```bash
+hdc shell aa force-stop <bundleName>
 hdc shell aa start -a EntryAbility -b <bundleName>
 ```
 
@@ -89,10 +94,11 @@ hdc shell aa start -a EntryAbility -b <bundleName>
 启动成功后，执行以下验证步骤：
 
 ```
-1. hdc shell aa start 返回成功
-2. 检查设备日志无 crash：
-   hdc shell "hilog -z 200 -t app -L E" 2>&1
-3. 手动冒烟：核心用户流程可走通（打开目标页面 → 触发主要交互 → 确认 UI 正常）
+1. aa start 返回成功
+2. 检查设备日志无 crash：hdc shell "hilog -z 200 -t app -L E"
+3. 界面验证：用节点树断言，不用截图 ——
+   ui layout 取节点树 → 断言目标页面/关键元素存在与文案正确 → 触发主要交互 → 断言状态变化
+   （UI 驱动命令见 ai-team-dev-pt-hm-ui-test —— 该 skill 是 `ui` 命令族唯一来源）
 4. 若启动失败或日志报错 → 向开发 Agent 反馈，不强行交付
 ```
 
@@ -116,7 +122,7 @@ send_message(
 | 错误码 | 含义 | 解决方案 |
 |--------|------|----------|
 | `10106102` | 设备屏幕锁定 | 弹窗"请解锁设备屏幕"，用户确认后重试 `aa start` |
-| `9568297` | 设备 API 版本低于 compatibleSdkVersion | 调整 `compatibleSdkVersion` 到设备支持的版本 |
+| `9568297` | 设备 API 版本低于 compatibleSdkVersion | 按 `ai-team-dev-pt-hm-env` E3 下调 `compatibleSdkVersion` → **重新编译** |
 | `code:16000018` | 应用已运行 | 提示用户先 `aa force-stop` 停止应用，再重试 |
 
 ### 产出交付报告（补充通用 reviewer 第七步：产出交付报告）
@@ -135,6 +141,7 @@ send_message(
 ```yaml
 platform: harmony
 build_skill: ai-team-dev-pt-hm-build
+env_skill: ai-team-dev-pt-hm-env    # 环境/工具链事实唯一来源，触碰环境时按需加载
 security_skill: ai-team-dev-pt-hm-arkts-security
 performance_skill: ai-team-dev-pt-hm-arkts-performance
 ```

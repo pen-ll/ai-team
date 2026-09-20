@@ -10,9 +10,13 @@ description: |
 
 # 鸿蒙项目初始化（ai-team 体系）
 
+> **环境事实**：路径探测 / CLI 口径 / SDK 版本决策 / 安装启动命令的**唯一来源是 `ai-team-dev-pt-hm-env`** —— 本 skill 全程都要触碰环境，**应尽早 `use_skill ai-team-dev-pt-hm-env`**，本 skill 只引用节号、不内联副本。
+
 ## 新项目创建
 
-默认目标 SDK 为 `5.0.3`（API Level 15），直接通过 `--api-level` 指定。
+**[门禁] 不传 `--api-level`**：用 CLI 当前 SDK 版本创建，创建完成后按本文「SDK 版本配置」+ `ai-team-dev-pt-hm-env` E3 决策版本。
+
+> 原因（真实事故）：旧文档写死 `--api-level 15`，而本机 SDK 已是 26（CLI 要求 ≥17）→ 创建直接失败并浪费一轮重试；即便创建成功，写死 15 也与设备 API 不符。**版本号一律查询取得，禁止硬编码**。
 
 ### 创建方式选择（根据工作区内容决定）
 
@@ -40,11 +44,12 @@ description: |
 
 ```bash
 mkdir -p <workspace>/.temp-project-init
-npx @deveco-test/deveco-cli@latest create \
+npx -y @deveco-test/deveco-cli@latest create \
   --app-name <Name> --bundle-name <bundle> \
-  --project-path <workspace绝对路径>/.temp-project-init \
-  --api-level 15
+  --project-path <workspace绝对路径>/.temp-project-init
 ```
+
+> CLI 包名口径与能力自检见 `ai-team-dev-pt-hm-env` E2（**必须用带 `ui`/`check` 能力的 `@deveco-test/deveco-cli`**）。
 
 ---
 
@@ -135,17 +140,19 @@ sed -i '' '/sdk\.dir=/d' <workspace>/local.properties 2>/dev/null
 
 > **关键原则**：用户选择当前工作区是有意图的，不能未经确认就换目录。确认后再执行创建，并告知最终路径。
 
-### API 15 创建失败的处理
+### SDK 版本配置（创建后立即做，[门禁] 禁止猜版本号）
 
-**如果创建失败**（通常是 SDK 中未安装 API 15 组件），不要降级 api-level 重试。按以下步骤处理：
+| # | 动作 | 命令 / 取值 |
+|---|------|-------------|
+| 1 | 查合法版本字符串 | `node <cli.js> check compat versions` → **原样取用**（如 `6.1.1(24)`） |
+| 2 | 查设备 API | `hdc shell param get const.ohos.apiversion` |
+| 3 | 查本机 SDK | `cat <SDK>/default/sdk-pkg.json` |
+| 4 | 写入 `build-profile.json5` | `targetSdkVersion` = 本机 SDK 版本；`compatibleSdkVersion` = **设备 API 对应的 Release 版本字符串** |
+| 5 | 改完**必须重新编译** | 只改配置不重建，安装的仍是旧产物 |
 
-1. 去掉 `--api-level 15` 重新执行创建（使用 SDK 当前版本）
-2. 创建成功后，手动修改 `build-profile.json5` 中的 SDK 版本：
-   ```json5
-   "targetSdkVersion": "5.0.3(15)",
-   "compatibleSdkVersion": "5.0.3(15)",
-   ```
-3. 弹出确认按钮"我已修改 SDK 版本"，用户确认后继续
+> **[门禁]** 版本格式必须是 `<平台版本>(<API>)` 且**存在于 `check compat versions` 输出中**。真实事故：凭经验试 `24.0.0` → `6.1.0(24)` 均非法，第 3 次才试对 `6.1.1(24)`，多花 2 轮编译 + 1 次重建安装。
+> 设备未连接时 → 先按本机 SDK 版本创建，设备就绪后再按上表下调 `compatibleSdkVersion`。
+> 完整决策规则（含 API 25 不存在等坑）见 `ai-team-dev-pt-hm-env` E3。
 
 ## 创建后必做（立即执行，不要等到编译失败再试）
 
@@ -169,7 +176,7 @@ sed -i '' '/sdk\.dir=/d' <workspace>/local.properties 2>/dev/null
 
 > **串行 vs 并行的边界**：
 > - **并行**（步骤 0）：3 项预检
-> - **串行**（步骤 1 → 2 → 3）：local.properties 处理 → 签名配置 → 预装包选择
+> - **串行**（步骤 1 → 2 → 3 → 4）：local.properties 处理 → 签名配置 → 预装包选择 → **空工程编译安装预检**
 
 ### 1. local.properties 处理
 
@@ -209,9 +216,21 @@ grep -c '"signingConfigs"' <项目根>/build-profile.json5
 
 签名确认后，调用 `use_skill ai-team-dev-pt-hm-project-package-init`，让用户选择预装的 OHPM 包。
 
+### 4. 空工程编译 + 安装预检（[门禁] 前置暴露 SDK / 签名问题）
+
+**[门禁] 预装包确认后立即执行**，不得等到编码完成才第一次编译安装：
+
+1. `use_skill ai-team-dev-pt-hm-build` 编译空工程 → 需 `BUILD SUCCESSFUL`，并产出 `*-signed.hap`（只有 unsigned → 回步骤 2 重新签名）
+2. `hdc install -r …` → `aa force-stop` → `aa start`（命令见 `ai-team-dev-pt-hm-env` E4）
+3. 安装报 `9568297` → 按本文「SDK 版本配置」下调 `compatibleSdkVersion` → **重新编译** → 重装；其他失败 → 按 `ai-team-dev-pt-hm-env` E1 复核路径，仍失败则 `ask_followup_question` 让用户裁决
+
+> **目的**：把"SDK 兼容 / 签名 / 设备"三类问题**前移到编码之前**。真实事故：本次直到编码全部完成、首次安装才撞上 `9568297`，被迫回改配置并重建 —— 若此时同时有代码问题，将无法区分是环境还是代码。
+> 无设备时 → 至少完成第 1 步，并把「未做安装预检（无设备）」写入后续 `coder-report.md`。
+
 ## 常见安装错误
 
 | 错误码 | 原因 | 解决 |
 |---|---|---|
-| `code:9568297` | 设备 API 版本低于 compatibleSdkVersion | 降低 compatibleSdkVersion |
-| 签名失败 | 未配置签名 | 在 DevEco Studio 中配置签名 |
+| `code:9568297` | 设备 API 版本低于 `compatibleSdkVersion` | 按 `ai-team-dev-pt-hm-env` E3 下调 `compatibleSdkVersion`（用 `check compat versions` 取字符串）→ **重新编译** |
+| 签名失败 | 未配置签名 | 在 DevEco Studio 中配置签名（本文件步骤 2） |
+| `aa start` 返回 `10106102` | 设备锁屏 | `hdc shell "power-shell wakeup"`，仍锁定 → 请用户解锁 |

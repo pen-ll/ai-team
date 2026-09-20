@@ -5,14 +5,14 @@ trigger: route-only
 user-invocable: false
 description: |
   AI 多 Agent 协同的文档沉淀规范，统一各角色产出物的元信息模板与写入路径（路径由 PM 经 artifact_dir 传入）。
-  触发场景：PM 与所有 ai-team-role-* 角色产出报告时引用，跨领域通用。
+  触发场景：产出物归档、需统一报告元信息模板与写入路径时取用，跨领域通用。
 ---
 
 # AI 多 Agent 协同 — 文档沉淀规范
 
 ## 触发
 
-由 PM 与各 `ai-team-role-*` 角色 skill 在"产出物归档"步骤中引用。
+产出物归档时取用本规范：统一写入路径、元信息模板与格式要求。
 
 ## 核心原则
 
@@ -52,7 +52,7 @@ mkdir -p ${workspaceFolder}/{artifact_dir}
 - 领域：{generic/development/writing}
 - 平台/环境：{harmony/ios/android/web/server/...}   仅开发领域
 - 任务标识：{slug}-{YYMMDD}（如 refactor-260901）   取自注入参数 `task_id`
-- 需求来源：{本次上游产出路径}（`generic` / `development` 为 `designer-report.md`；`writing` 为 `editor-report.md` 的基调卡章节）
+- 需求来源：{本次上游产出路径}（各领域取该领域蓝图文档；具体路径由领域角色 skill 约定）
 - 生成时间：{timestamp}
 - 置信度：{XX}%
 ```
@@ -84,37 +84,11 @@ mkdir -p ${workspaceFolder}/{artifact_dir}
 
 ### 开发领域（`领域=development`）
 
-#### designer-report.md — 需求文档
-
-元信息 + 需求描述 + 详细需求（运行环境/技术栈/交互要求/UI参考/明确不做）+ 下游建议
-
-> 复杂需求（完整模式）额外包含 `## 任务清单` 表格（任务ID/名称/范围/前置依赖/验收标准），未拆分则省略该章节。
-
-#### coder-report.md — 技术方案
-
-元信息 + 技术选型（语言/框架/构建工具）+ 文件清单（表格）+ 实现要点 + 已知限制
-
-> 多任务模式：coder 每任务产出 `coder-report-task-{N}.md`（元信息标注任务ID），全部任务完成后产出**汇总** `coder-report.md`（任务实现总览表 + 引用各 task 报告路径）。汇总文件必出，下游校验依赖它。
-
-#### tester-report.md — 测试报告
-
-元信息 + 测试用例清单（表格：#/用例名/覆盖功能/预期结果/状态）+ **边界维度覆盖表**（维度/适用性/对应用例编号或不适用原因）+ 测试结果（Tests run/Failure/Pass）+ 未覆盖项清单（含不可构造边界与原因）
-
-#### reviewer-report.md — 交付报告
-
-元信息 + 交付前检查清单 + 启动验证 + 交付物清单 + 总结
+各报告（`designer-report.md` / `coder-report.md` / `coder-report-task-{N}.md` / `tester-report.md` / `reviewer-report.md` / `web-req-report.md`）的章节结构由**对应领域角色 skill 定义**，本节不重复。
 
 ### 写作领域（`领域=writing`）
 
-| 报告 | 内容 |
-|------|------|
-| `editor-report.md` | 元信息 + 基调卡 + 裁决记录 + 阶段终审结论 |
-| `writer-report.md` | 元信息 + 本批章节清单（章号 / 字数 / brief 路径 / 主台账是否登记）+ 伏笔动作清单 + 已知限制 |
-| `critic-report-ch{N}.md` | 元信息 + 七维判定 + 结构门禁结果 + 分级问题清单（P0 / P1 / P2） |
-| `reader-report-ch{N}.md` | 元信息 + 该口味评分表 + 加权得分 + 一票否决 / 封顶判定 + 感受证据 |
-| `market-report.md` | 元信息 + 对标表 + 雷同度定级 + 差异化定位 + 规避清单 |
-
-> 写作领域的**设定集为多文件资产**（`world.md` / `characters.md` / `outline.md` / `foreshadow.md` / `voice.md`），由设定设计师产出、非单一报告——上表元信息块仅用于各角色的 `*-report.md`。
+各报告（`editor-report.md` / `writer-report.md` / `critic-report-ch{N}.md` / `reader-report-ch{N}.md` / `market-report.md` / `commercial-report.md`）与设定集五件套的章节结构由**对应领域角色 skill 定义**，本节不重复。
 
 ---
 
@@ -138,31 +112,9 @@ mkdir -p ${workspaceFolder}/{artifact_dir}
 | designer | 需求文档 | `{artifact_dir}/designer-report.md` |
 | 动态角色 | 角色报告 | `{artifact_dir}/{role}-report.md` |
 
-### 开发领域
+### 开发领域 / 写作领域
 
-| 角色 | 产出物 | 路径 |
-|------|--------|------|
-| designer | 需求文档 | `{artifact_dir}/designer-report.md` |
-| designer | 网页需求文档（工具产出） | `{artifact_dir}/web-req-report.md` |
-| coder | 技术方案 | `{artifact_dir}/coder-report.md` |
-| coder（多任务） | 单任务技术方案 | `{artifact_dir}/coder-report-task-{N}.md` |
-| tester | 测试报告 | `{artifact_dir}/tester-report.md` |
-| reviewer | 交付报告 | `{artifact_dir}/reviewer-report.md` |
-
-### 写作领域
-
-| 角色 / 变体 | 产出物 | 路径 |
-|-------------|--------|------|
-| editor（计划者） | 基调卡与裁决记录 | `{artifact_dir}/editor-report.md` |
-| architect（计划者） | 设定集与大纲五件套 | `{artifact_dir}/world.md` · `characters.md` · `outline.md` · `foreshadow.md` · `voice.md` |
-| writer（实现者） | 正文 / 章节精简 / 改稿台账 / 断点台账 | `{artifact_dir}/chapters/ch-{N}.md` · `briefs/ch-{N}.brief.md` · `chapter-changelog.md` · `progress.md` · `writer-report.md` |
-| critic（审查者） | 审稿报告 | `{artifact_dir}/critic-report-ch{N}.md` |
-| reader（审查者 · 按口味各一实例） | 读者评分报告 | `{artifact_dir}/reader-report-ch{N}.md` |
-| market / commercial（审查者） | 竞品 / 商业评估 | `{artifact_dir}/market-report.md` · `commercial-report.md` |
-
-> 多任务模式（需求文档含 `## 任务清单`）命名约定：
-> - coder 每任务产出 `coder-report-task-{N}.md`，全部完成后汇总为 `coder-report.md`
-> - tester / reviewer 沿用 `tester-report.md` / `reviewer-report.md` 原名，元信息标注覆盖任务范围
+产出物路径由**各领域角色 skill 的配置段**声明（`artifact_path` / `item_report_pattern` 等），本节不重复；目录一律为 `{artifact_dir}`。
 
 ---
 

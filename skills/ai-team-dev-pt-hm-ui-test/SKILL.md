@@ -19,28 +19,27 @@ platform=harmony 且满足任一：
 | 需验证交互链路 | 页面跳转、列表渲染、tab 切换、筛选、分页触底、空态/错误态 |
 | 需运行时证据 | 抓取接口真实请求参数（URL/query/body）、业务分支日志、崩溃日志 |
 
-> **职责边界**：本 skill **只负责真机 UI 自动化**。
+> **职责边界**：本 skill **只负责真机 UI 自动化**（`ui` 命令 + 节点树输出约定 + 测试工程化方法）。
 
 ## 工具链
 
-官方 CLI 二进制名 `devecocli`（DevEco CLI）。**第一件事：确认当前 CLI 带 `ui` 子命令**：
+CLI 包名口径、安装、能力自检与稳定路径解析 **见 `ai-team-dev-pt-hm-env` E2**（本 skill 不内联副本）。
+
+**第一件事：确认当前 CLI 带 `ui` 子命令**：
 
 ```bash
-devecocli ui --help                                    # 已全局安装
-npm install -g @deveco/deveco-cli@latest               # 未安装时（官方安装方式）
-npx --yes @deveco-test/deveco-cli@latest ui --help     # 免安装尝试
+node <cli.js> ui --help     # 必须能正常输出；否则按 `ai-team-dev-pt-hm-env` E2 换包/升级
 ```
 
-> **实测提醒**：`ui` / `docs` / `check` / `signature` / `auth` 属较新版本能力 —— 本机曾缓存一个 `@deveco/deveco-cli` 旧版本，命令集仅 `build/run/device/emulator/skills/log/create/init/serve`，**没有 `ui`**。因此不要假定「任一包名都可直接用」，一律以 `devecocli ui --help` 能否正常输出为准；不可用则升级官方最新版，或走下方降级通道。
-
-**[门禁] 环境要求**（官方 README / `开发指南/DevEco_CLI/下载与安装`）：Node.js **≥ 18（推荐 22+）**；**DevEco Studio ≥ 6.1.0 或 Command Line Tools ≥ 26.0.0**（二者其一即可；macOS 下官方要求装在 `~/Applications` 或 `/Applications`）。不满足时走降级通道并在报告记录环境限制。
+> **[门禁] 环境门槛只用能力探测**（见 `ai-team-dev-pt-hm-env` E5），**禁止**与硬编码版本阈值比较 —— IDE/SDK 版本号命名已跳变（本机 DevEco Studio = `26.0.0.821`，旧文档写作 `6.1.0`），比大小必然误判。
+> 任一能力探测失败 → 升级/换包，或走降级通道，并在报告记录**降级原因**。
 
 **查证一手来源**（怀疑参数/行为时先查，别猜）：
 
 ```bash
-devecocli docs search "<关键词>"     # 官方离线文档库（含 DevEco CLI 三篇官方文档）
-devecocli <command> --help           # 参数最权威来源
-DEVECO_CLI_DEBUG=1 devecocli ...     # 打印底层命令映射（如截图实为 hdc snapshot_display + file recv），排查利器
+node <cli.js> docs search "<关键词>"     # 官方离线文档库（含 DevEco CLI 官方文档）
+node <cli.js> <command> --help           # 参数最权威来源
+DEVECO_CLI_DEBUG=1 node <cli.js> ...     # 打印底层命令映射（如截图实为 hdc snapshot_display + file recv），排查利器
 ```
 
 备用底层通道（CLI 不可用时降级）：`hdc shell uinput`（点击/滑动/输入）+ `hdc shell hilog`（日志）。
@@ -59,6 +58,7 @@ DEVECO_CLI_DEBUG=1 devecocli ...     # 打印底层命令映射（如截图实�
 | 7 | 放开日志级别 | `hdc shell hilog -b D` | 不放开只能抓到 I 级以上日志，业务 debug 分支会丢失 |
 
 > 多设备时所有 CLI 命令追加 `--device <serial>`。
+> 设备层命令与 CLI 口径：需要时 `use_skill ai-team-dev-pt-hm-env`（E2 / E4）。
 
 ## 命令表
 
@@ -66,10 +66,10 @@ DEVECO_CLI_DEBUG=1 devecocli ...     # 打印底层命令映射（如截图实�
 |------|------|------|
 | 取页面节点树 | `ui layout [--mode full] [--format json] [--depth <n>] [--window <id>] [--all-windows] [--id <id>]` | 默认 simplified；**Toast / 弹窗以独立顶层窗口覆盖时须加 `--all-windows`**（否则只返回顶层窗口）；`--window` 与 `--all-windows` **互斥** |
 | 列出窗口 | `ui window list` | 取 `--window <id>` 所需的窗口 id |
-| 点击节点（推荐） | `ui click --id <nodeId>` | 免算坐标，节点树变动时更稳（官方示例：`ui click --id submit_button`）；`--window` 可与 `--id` 搭配 |
-| 点击坐标 | `ui click <x> <y>` | 坐标 = 节点框 `[left,top,right,bottom]` 中心 |
+| 点击（**默认路径**） | `ui click <x> <y>` | 坐标 = 节点框 `[left,top,right,bottom]` 中心 |
+| 点击节点（需应用配合） | `ui click --id <nodeId>` | **仅当应用给组件设了 `.id('xx')` 才可用** —— 实测节点树默认**不含 `id` 字段**；`--window` 可与 `--id` 搭配 |
 | 双击 / 长按 | `ui doubleclick <x> <y>` / `ui longclick <x> <y>` | 长按唤起菜单/多选；双击用于特定交互（两者均只支持坐标） |
-| 输入文本 | `ui text "<文本>" [x] [y]` / `ui text --id <nodeId> "<文本>"` | 传坐标或 `--id` 可先聚焦；需替换原内容时先点输入框内的清除按钮节点 |
+| 输入文本 | `ui text "<文本>" [x] [y]`（`--id` 同上，需应用设 id） | 传坐标可先聚焦；需替换原内容时先点输入框内的清除按钮节点 |
 | 惯性滑动（触底首选） | `ui fling <x1> <y1> <x2> <y2> [--speed <n>]` | 向下滚动内容 = 手指由下往上（如 `630 2200 630 600`）；`--speed` 像素/秒，范围 `200~40000`，**建议 8000~15000**（快且不易丢帧；未指定时用 CLI 默认值，本 skill 不设默认）；触底加载需连续多次（每次约一屏） |
 | 精确滑动 | `ui swipe <x1> <y1> <x2> <y2> [--speed <n>]` | 固定轨迹时用，速度同上 |
 | 拖拽 | `ui drag <x1> <y1> <x2> <y2> [--speed <n>]` | 拖拽排序等场景 |
@@ -77,6 +77,30 @@ DEVECO_CLI_DEBUG=1 devecocli ...     # 打印底层命令映射（如截图实�
 | 截图留痕 | `ui screenshot --path <dir\|file.png> [--display <displayId>]` | 视觉断言/崩溃现场留证；底层为 `hdc shell snapshot_display` + `hdc file recv`（可用 `DEVECO_CLI_DEBUG=1` 查看） |
 | 应用日志 | `log --bundle-name <bundle> --level D --keyword <kw> --from 30s --tail 200` | `--crash` 只看崩溃；`--follow` 实时跟随。**实测部分环境该命令无输出（仅打印 `Preparing log request…`）→ 立即回退下一行的 `hilog`**，不要因无输出而误判「无日志」 |
 | 原始日志（抓请求 URL） | `hdc shell hilog -r` → 操作 → `hdc shell hilog -x -n 4000` | 清缓冲后再抓，避免被历史日志淹没 |
+
+## 节点树输出格式与断言约定（2026-09-20 真机验证）
+
+```text
+# 默认 simplified —— 断言用，最省 token
+[0,0,1260,2720]
+  Text [515,1246,745,1390] "+" clickable
+
+# --mode full —— 排查层级 / 布局错位用（能看出元素属于哪个容器）
+    Stack [0,124,1260,2720]
+      Row [0,1188,1260,1532]
+        Text [71,1356,502,1482] "提醒事项"   ← y 居中 ⇒ 顶栏没贴顶
+```
+
+| 约定 | 说明 |
+|------|------|
+| 节点**不带 `id`** | 除非应用自己 `.id('xx')`；因此点击默认走坐标 |
+| 坐标取法 | 节点 `[l,t,r,b]` → 中心 `((l+r)/2,(t+b)/2)` → `ui click <x> <y>` |
+| `clickable` 标记 | 仅在 simplified / full 输出出现，用于筛可交互节点 |
+| **软键盘会改变 root bounds** | 实测 2720 → 1699，**断言勿依赖 root 高度** |
+| 输出模式选择 | simplified 断言 / full 定位层级 / `--format json` 冗长，非必要不用 |
+
+**[门禁] 断言优先用节点树而非截图**：节点树是文本，可断言"元素存在 / 文案 / 完成态 / **布局位置**"，token 成本远低于截图；截图仅用于视觉类结论留证。
+> 实测耗时：单条命令亚秒级返回；token ≈ 每屏 5 行（simplified）/ 20~30 行（full）。
 
 ## 标准流程
 
@@ -177,7 +201,7 @@ DEVECO_CLI_DEBUG=1 devecocli ...     # 打印底层命令映射（如截图实�
 
 ## 报告落盘（[门禁]）
 
-在 `tester-report.md` 新增「运行时真机验证」章节，逐项记录：
+按调用角色的报告落盘（coder 冒烟自验 → 写入 `coder-report.md`；tester 用例验证 → 写入 `tester-report.md`），新增「运行时真机验证」章节，逐项记录：
 
 | 列 | 要求 |
 |----|------|

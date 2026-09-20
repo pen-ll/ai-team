@@ -6,14 +6,14 @@ user-invocable: false
 context: fork
 description: |
   写作领域「实现者」扩展（原型 = maker · 变体 writer），按大纲与设定批量写作章节，维护章节精简与修改日志，不自创设定。
-  触发场景：由 ai-team-role-maker 第零步在 领域=writing 且 变体=writer 时加载，不单独 spawn。
+  触发场景：领域=writing 且变体=writer 时启用本扩展（不单独 spawn）。
 ---
 
 # 写作领域 — 实现者扩展（`writing` · 原型 maker · 变体 writer）
 
 ## 触发
 
-由 `ai-team-role-maker` 在 `领域=writing` 且 `变体=writer` 时经「第零步：领域适配」加载。**不单独 spawn**。
+领域=writing 且变体=writer 时经「第零步：领域适配」启用。**不单独 spawn**。
 
 ## 覆盖范围
 

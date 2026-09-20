@@ -2,6 +2,18 @@
 
 > 本文件只记录**里程碑级**变更（新增能力与机制调整），面向使用者。**每条只写「改了什么」**——缘由、证据与实现细节见 git 提交。
 
+## 2.1 · 2026-09-20 · ai-team Skill 体系审计整改
+
+- **分层纠偏**：`ai-team-role-maker` 移除基座内 4 处开发领域工具（`ai-team-dev-tool-*`）具名引用，改为「按领域扩展提供」占位；同步在 `ai-team-dev-role-coder` 补回 `minimal-code` / `security` 加载，dev 行为不变
+- **通用层去领域化**：`ai-team-tool-report` 将「开发 / 写作领域」报告模板章节下沉为指针（各报告结构由对应领域角色 skill 定义），177 → 129 行；保留元信息模板与领域目录表
+- **路由一致性**：`ai-team-dev/platform-map.md` 新增「UI 驱动（按需）」列（harmony → `ai-team-dev-pt-hm-ui-test`）；`ai-team-dev-role-tester` 由硬编码平台 skill 改为查表加载
+- **单一事实源**：`ai-team-dev/README.md` 去除与 `platform-map.md` / `auto-tune` / `global-rule` 重复或矛盾的表述（选项 2-4、CHANGELOG 自动管理、平台映射表）；补全 `ui-test` / `env` 清单条目；「编码模板 6 个」改为「按需新增」
+- **文档卫生**：删除 `ai-team` / `ai-team-dev` / `ai-team-write` SKILL.md 的「版本历史见根 README.md」悬空指针及「最后更新」时间戳
+- **体积规范放宽**：单文件门禁由「≤200 行」调整为「≤250 行，可超出 1–50 行（上限 300 行）」，同步 `my-skill-create` 与规范记忆
+- **拆分**：`ai-team-dev-pt-hm-arkts-coding-rules` 358 → 269 行（仅留类型系统 / 禁用语法 / 编码规范）；新增 `ai-team-dev-pt-hm-arkts-v2-reactive`（100 行）承载 `@ObservedV2` / `@Trace`，选 V2 模板或 V2 状态管理时按需加载
+- **引用规范**：全体系清除「上游调用关系」描述（被编排方 spawn / 由 `ai-team-role-X` 加载 / 由 PM 引用 等），改为条件式触发，覆盖 3 基座 + 5 工具 + 11 领域扩展 + 3 平台角色
+- **单写门禁**：`ai-team-dev-pt-hm-ui-test` 报告落盘改为按调用角色写（coder → `coder-report.md`，tester → `tester-report.md`）
+
 ## 2.0 · 2026-09-18
 
 ### 09-18 · 写作领域落地 + 角色层通配化重构

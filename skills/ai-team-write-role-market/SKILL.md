@@ -6,14 +6,14 @@ user-invocable: false
 context: fork
 description: |
   写作领域「审查者」扩展（原型 = reviewer · 维度 market），做同题材内容层对标与雷同度判定，输出差异化建议与规避清单。
-  触发场景：由 ai-team-role-reviewer 第零步在 领域=writing 且 变体=market 时加载，不单独 spawn。
+  触发场景：领域=writing 且变体=market 时启用本扩展（不单独 spawn）。
 ---
 
 # 写作领域 — 审查者扩展（`writing` · 原型 reviewer · 维度 market）
 
 ## 触发
 
-由 `ai-team-role-reviewer` 在 `领域=writing` 且 `变体=market` 时经「第零步：领域适配」加载。**不单独 spawn**。
+领域=writing 且变体=market 时经「第零步：领域适配」启用。**不单独 spawn**。
 
 > 本维度属「**提供判断依据**」类审查，与「挑问题」类维度（critic / reader）**不共用同一份检查清单**。
 

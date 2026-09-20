@@ -6,14 +6,14 @@ user-invocable: false
 context: fork
 description: |
   写作领域「计划者」扩展（原型 = planner · 变体 architect），产出世界观/人物/大纲/伏笔台账/文风卡五件套，是设定集唯一写入者。
-  触发场景：由 ai-team-role-planner 第零步在 领域=writing 且 变体=architect 时加载，不单独 spawn。
+  触发场景：领域=writing 且变体=architect 时启用本扩展（不单独 spawn）。
 ---
 
 # 写作领域 — 计划者扩展（`writing` · 原型 planner · 变体 architect）
 
 ## 触发
 
-由 `ai-team-role-planner` 在 `领域=writing` 且 `变体=architect` 时经「第零步：领域适配」加载。**不单独 spawn**。本实例与 `变体=editor` 的实例**并行**，各写各产出、互不覆盖。
+领域=writing 且变体=architect 时经「第零步：领域适配」启用。**不单独 spawn**。本实例与 `变体=editor` 的实例**并行**，各写各产出、互不覆盖。
 
 ## 覆盖范围
 

@@ -6,14 +6,14 @@ user-invocable: false
 context: fork
 description: |
   开发领域「审查者」扩展 · 维度 = 代码审查（原型 = reviewer），补充交付前检查清单、代码质量审查、过度设计审查与启动验证。
-  触发场景：由 ai-team-role-reviewer 第零步在 领域=development 且 变体=reviewer 时加载，不单独 spawn。
+  触发场景：领域=development 且变体=reviewer 时启用本扩展（不单独 spawn）。
 ---
 
 # 开发领域 — 审查者扩展（`development` · 原型 reviewer · 维度 = 代码审查）
 
 ## 触发
 
-由 `ai-team-role-reviewer` 在 `领域=development` 且 `变体=reviewer` 时经「第零步：领域适配」加载。**不单独 spawn**。本实例**只负责代码审查这一个维度**。
+领域=development 且变体=reviewer 时经「第零步：领域适配」启用。**不单独 spawn**。本实例**只负责代码审查这一个维度**。
 
 > **依赖**：本维度声明「前置依赖测试验证维度完成」——PM 会在 tester 实例完成后再 spawn 本实例；`depends_on` 传入 tester 报告，**必须先读**（避免与测试结论冲突）。
 > **高风险场景自动对抗审查**：涉及核心逻辑 / 安全 / 状态管理 / 数据迁移时，按基座「对抗审查」执行（只输出问题、输入隔离）。
@@ -34,6 +34,7 @@ description: |
 `read_file("{platform_map}")` → 匹配当前 `platform` → 命中 **reviewer 列** → `use_skill {对应特化 skill}`；未命中则不加载，按通用审查流程执行。
 
 > 特化 skill 覆盖构建验证、代码质量审查、启动验证、设备错误码处理等。
+> **环境相关事实由平台特化 skill 自行持有并按其指引按需读取**（通用扩展不承载任何平台环境知识）。
 
 ## 二、交付前检查清单
 
@@ -81,7 +82,7 @@ description: |
 | 性能 | 无明显性能反模式（循环内重复计算、未清理的定时器 / 监听器）；大量数据使用合理渲染策略 |
 | 规范 | 命名符合规范 / 文件结构清晰 / 无冗余代码 |
 | 可靠性 & 可观测性 | 外部调用有异常捕获不静默吞错；关键外部依赖不可用时有降级路径而非直接崩溃；可重试操作具备幂等性或明确重试策略；关键路径有日志或错误追踪可定位 |
-| 过度设计 | `use_skill ai-team-tool-minimal-code`，按其第五节标签逐条检查 |
+| 过度设计 | `use_skill ai-team-dev-tool-minimal-code`，按其第五节标签逐条检查 |
 
 > 可靠性 & 可观测性一节针对纯展示型改动（无外部依赖、无状态变更）可跳过。
 > 过度设计审查只猎复杂度：`delete:` 死代码 / 未用灵活性 / 投机功能 · `stdlib:` 手写但标准库已有 · `native:` 依赖或代码做平台已能做的事 · `yagni:` 单实现抽象、没人设置的 config、单调用方分层 · `shrink:` 相同逻辑更少行数。结束输出 `net: -{N} lines possible`，无可删则 `Lean already`。

@@ -1,11 +1,11 @@
 ---
-name: ai-team-tool-ui-ux
+name: ai-team-dev-tool-ui-ux
 autoTrigger: false
 trigger: route-only
 user-invocable: false
 description: |
-  AI 多 Agent 协同的 UI 常见体验优化规则，含防抖/节流与 Loading/Error/Empty/Content 四态管理。
-  触发场景：需求涉及用户交互、网络请求、数据展示时加载，跨平台通用。
+  开发领域工具 — UI 常见体验优化规则（防抖 / 节流、Loading / Error / Empty / Content 四态管理）。
+  触发场景：需求涉及用户交互、网络请求、数据展示时加载。
 ---
 
 # UI 常见体验优化规则

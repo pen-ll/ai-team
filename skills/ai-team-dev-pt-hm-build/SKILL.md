@@ -14,44 +14,23 @@ description: |
 
 编码完成后执行，编译整个项目或单独模块。
 
-## DevEco 路径探测（首次使用必做）
+> **环境事实**：路径探测、SDK 版本决策、设备命令的**唯一来源是 `ai-team-dev-pt-hm-env`** —— **编译前需要探测路径时 `use_skill ai-team-dev-pt-hm-env`**，本 skill 不内联副本。
 
-> DevEco Studio 安装路径因系统/安装方式而异，**所有编译命令必须先探测路径，禁止硬编码**。
-> 分平台完整路径逐项探测：macOS（.app bundle，有 `Contents/` 层）与 Windows（无 `Contents/` 层）目录结构不同，**不能共用动态前缀**，需按平台各写完整路径。
+## 路径探测（首次使用必做）
 
-```bash
-# ① 探测 DevEco Studio 内置 Node.js（<node_path>）
-NODE="/Applications/DevEco-Studio.app/Contents/tools/node/bin/node"          # macOS 默认
-[ -f "$NODE" ] || NODE="$HOME/Applications/DevEco-Studio.app/Contents/tools/node/bin/node"  # macOS 用户目录
-[ -f "$NODE" ] || NODE="/c/Program Files/Huawei/DevEco Studio/tools/node/node.exe"          # Windows (Program Files)
-[ -f "$NODE" ] || NODE="/d/DevEco Studio/tools/node/node.exe"                               # Windows (D 盘自定义)
-# 仍未找到 → ask_followup_question 让用户提供 node 可执行文件完整路径
+**[门禁] 编译前必须完成路径探测** —— 探测命令与三组件（内置 node / hvigorw.js / SDK 根）的完整候选列表**见 `ai-team-dev-pt-hm-env` E1**。
 
-# ② 探测 hvigorw.js（<hvigorw_path>，bin 层两侧一致，仅根前缀不同）
-HVIGORW="/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw.js"              # macOS
-[ -f "$HVIGORW" ] || HVIGORW="/c/Program Files/Huawei/DevEco Studio/tools/hvigor/bin/hvigorw.js"   # Windows
-[ -f "$HVIGORW" ] || HVIGORW="/d/DevEco Studio/tools/hvigor/bin/hvigorw.js"                  # Windows (D 盘)
-# 仍未找到 → ask_followup_question 让用户提供 hvigorw.js 完整路径
+- 探测结果记作 `<node_path>` / `<hvigorw_path>` / `<sdk_path>`，供本 skill 全部编译命令引用
+- 三者**独立探测**、`[ -f ]` / `[ -d ]` 短路求值、命中即用；全部失败 → `ask_followup_question` 让用户提供完整路径
+- SDK 根**不含** `/default`；报 `Invalid value of 'DEVECO_SDK_HOME'` 先复核此项
 
-# ③ 探测 SDK 根（<sdk_path> = DEVECO_SDK_HOME，不含 default）
-SDK="/Applications/DevEco-Studio.app/Contents/sdk"                            # macOS
-[ -d "$SDK" ] || SDK="/c/Program Files/Huawei/DevEco Studio/sdk"              # Windows
-[ -d "$SDK" ] || SDK="/d/DevEco Studio/sdk"                                   # Windows (D 盘)
-# 仍未找到 → ask_followup_question 让用户提供 SDK 根目录完整路径
-```
-
-- **探测原则**：每个组件独立探测（node / hvigorw.js / SDK 三者路径结构不同，不能互相派生），`[ -f ]` / `[ -d ]` 短路求值逐个尝试，命中即用；全部失败则 `ask_followup_question` 让用户提供对应完整路径
-- **macOS vs Windows 结构差异**：macOS 根为 `.app` bundle（含 `Contents/` 层），node 位于 `tools/node/bin/node`；Windows 根为安装目录（无 `Contents/`），node 位于 `tools/node/node.exe`（无 bin 层 + `.exe` 后缀）。hvigor 两侧均为 `tools/hvigor/bin/hvigorw.js`，SDK 两侧均为 `sdk`（macOS 在 `Contents/sdk`）
-- **Windows 路径格式**：AI 终端为 Git Bash 时用 `/c/...`、`/d/...` 格式；直接 PowerShell 执行时需先探测可用路径格式
-- 后续编译命令中的 `<node_path>` / `<hvigorw_path>` / `<sdk_path>` 均为本探测结果
-
-## MCP 编译前检查（仅编译失败时）
+## MCP 用途边界
 
 | 场景 | 是否用 MCP |
 |------|-----------|
 | 首次编译 | ❌ 不需要 |
-| 编译失败 | ✅ 必须用 — 排查错误、定位问题 |
-| 编译成功，后续日常编译 | ❌ 不需要 — 直接用 `build_project` |
+| 编译失败 | ✅ 用 `deveco-mcp` 的 `check` 工具做静态诊断（CLI 口径 / 失败分类见 `ai-team-dev-pt-hm-env` E2） |
+| 编译成功，后续日常编译 | ❌ 不需要 — 直接执行编译命令 |
 
 ## 编译命令
 

@@ -4,13 +4,11 @@ autoTrigger: false
 trigger: route-only
 user-invocable: false
 description: |
-  鸿蒙平台特化 — ArkTS 安全编码规范，通用安全规范见 ai-team-tool-security。
+  鸿蒙平台特化 — ArkTS 安全编码规范（ohpm 安装白名单等鸿蒙特有规则）。
   触发场景：鸿蒙开发涉及安全场景时加载。
 ---
 
 # ArkTS 安全编码规范（鸿蒙特化）
-
-本 skill 仅包含鸿蒙特有安全规则。通用安全规范（死循环检测、黑灰产禁止、敏感信息保护等）见 `ai-team-tool-security`。
 
 ---
 
