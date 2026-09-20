@@ -141,7 +141,9 @@ ask_followup_question(
 - 任何需要 UI 响应变化的类对象都必须加 `@ObservedV2`，其内部需要触发 UI 刷新的属性必须加 `@Trace`
 - ViewModel 内 `@Trace` 引用的子对象 → 子对象类也必须 `@ObservedV2`，子对象属性加 `@Trace`
 
-**UI 布局自检**（编码完成后，LSP/编译前）：
+**UI 静态自检**（编码完成后，LSP/编译前 —— **本阶段只能读代码判定，不能运行**）：
+
+*布局*：
 - 检查是否使用了固定 px/vp 宽度 + margin 导致多列布局总宽度超出 100%
 - 检查按钮网格是否用 `layoutWeight` 自适应而非 `width('25%')` 等固定百分比
 - 检查需要一屏完整展示的布局是否确保不溢出
@@ -216,6 +218,8 @@ use_skill ai-team-dev-pt-hm-build
 > **截图仅限**：视觉类结论（配色、渐变、毛玻璃观感）留证，或节点树无法表达时的崩坏现场。**不得**用截图代替可断言的元素检查。
 > **降级**：按 `ai-team-dev-pt-hm-env` E5 探测到 `ui` 不可用 → 请用户手动走一遍核心链路，我方以 `hilog` + 用户描述复核。**降级原因必须登记**。
 
+> **[门禁] 手动模式下的 UI 观感确认**：当 `模式: 手动确认` **且**需求含 UI / 视觉类验收项时，把应用**实际运行起来**后，必须 `ask_followup_question` 请用户**直接确认观感**（如「当前顶部玻璃效果是否符合预期？」），不得仅凭 AI 自行看图 / 看节点树就判定通过。`全自动` 模式保持原有自检流程不变。
+
 > **[门禁] 只冒烟、不写测试**：本步骤**不编写测试代码、不建 `ohosTest` 目录、不产测试用例** —— 测试工程归 tester 维度（见 `ai-team-dev-pt-hm-role-tester` / `ai-team-dev-pt-hm-ui-test`）。
 > **边界澄清**：用 `ui` 命令**驱动一次冒烟链路并断言**是 coder 本步骤的职责，**不算**"写测试"；写用例 / 建测试目录 / 出测试报告才是 tester 职责。
 > **无设备 / 无法安装**：如实登记「未做冒烟自验（原因）」，继续后续流程，**不得伪造**，也不得为凑验证改去写测试。
@@ -234,12 +238,12 @@ use_skill ai-team-dev-pt-hm-build
 
 ## 安全与性能
 
-**[门禁] 按需加载，禁止开局全量灌入**（这些 skill 体积大，开局全读会挤占上下文并使后续内容被压缩丢失）：
+**[门禁] 按需加载，禁止开局全量灌入** ：
 
 | 何时加载 | 加载项 |
 |----------|--------|
 | 涉及类型系统 / 语法不确定 / ArkTS 类型报错时 | `ai-team-dev-pt-hm-arkts-coding-rules` |
-| 涉及视觉动效 / 长列表 / 渲染性能时 | `ai-team-dev-pt-hm-arkts-performance` |
+| 涉及渲染性能 / 长列表 / 动效流畅度时 | `ai-team-dev-pt-hm-arkts-performance`（⚠️ 该 skill **只含性能规则，不含任何观感 / 材质规范**） |
 | 选用 V2 状态管理 / V2 模板，涉及 `@ObservedV2` / `@Trace` 响应式数据时 | `ai-team-dev-pt-hm-arkts-v2-reactive` |
 | 涉及敏感信息 / 网络 / 依赖安装时 | `ai-team-dev-tool-security` + `ai-team-dev-pt-hm-arkts-security` |
 
