@@ -109,11 +109,11 @@ ai-team（领域无关内核 / 总 PM）
 |--------|-----------|-----------|
 | 需求与澄清 | 意图澄清（who/why/success/constraint）、主动穷举确认、需求结构化、角色清单适配检查、任务拆分、网页需求读取 | `ai-team-role-planner` · `ai-team-dev-role-designer` <br> · `ai-team-tool-web-read` |
 | 编排与调度 | 领域路由、动态角色推导、**角色多选编排**（按原型分组）、团队调整、审查维度多实例、全自动/手动确认、会话回收 | `ai-team` · `ai-team-dev` · `ai-team-write` · `ai-team-tool-role-composer` |
-| 实现与工程 | 技术选型、编码实现、语法校验、编译构建、极简编码、UI 四态与防抖、项目初始化 / 模块创建 / 依赖预装 / 编码模板 | `ai-team-role-maker` · `ai-team-dev-role-coder` <br>  · `ai-team-dev-pt-hm-role-coder` · `ai-team-tool-minimal-code` · `ai-team-tool-ui-ux` <br>  · `ai-team-dev-pt-hm-build` · `ai-team-dev-pt-hm-project-init` <br>  · `ai-team-dev-pt-hm-project-module-init`  <br> · `ai-team-dev-pt-hm-project-package-init` <br>  · `ai-team-dev-pt-hm-template-v2` |
+| 实现与工程 | 技术选型、编码实现、语法校验、编译构建、极简编码、UI 四态与防抖、项目初始化 / 模块创建 / 依赖预装 / 编码模板 | `ai-team-role-maker` · `ai-team-dev-role-coder` <br>  · `ai-team-dev-pt-hm-role-coder` · `ai-team-dev-tool-minimal-code` · `ai-team-dev-tool-ui-ux` <br>  · `ai-team-dev-pt-hm-build` · `ai-team-dev-pt-hm-project-init` <br>  · `ai-team-dev-pt-hm-project-module-init`  <br> · `ai-team-dev-pt-hm-project-package-init` <br>  · `ai-team-dev-pt-hm-template-v2` |
 | 测试与验证 | 单元测试、边界维度清单、结论有效性校验、环境条件门禁、启动验证 | `ai-team-role-reviewer` · `ai-team-dev-role-tester` <br>  · `ai-team-dev-role-reviewer` |
-| 质量与门禁 | 置信度门禁、输入校验 Guardrail、编排深度门禁、对抗式审查、问题分级、过度设计审查 | `ai-team-tool-global-rule` · `ai-team-role-reviewer` <br>  · `ai-team-tool-minimal-code` |
-| 安全与合规 | 死循环检测阈值、黑灰产/供应链攻击红线、敏感信息保护、依赖安装确认 | `ai-team-tool-security` · `ai-team-dev-pt-hm-arkts-security` |
-| 调试与排障 | 定位手段成本分级、协作调试循环、平台日志读取 | `ai-team-tool-debug-loop` |
+| 质量与门禁 | 置信度门禁、输入校验 Guardrail、编排深度门禁、对抗式审查、问题分级、过度设计审查 | `ai-team-tool-global-rule` · `ai-team-role-reviewer` <br>  · `ai-team-dev-tool-minimal-code` |
+| 安全与合规 | 死循环检测阈值、黑灰产/供应链攻击红线、敏感信息保护、依赖安装确认 | `ai-team-dev-tool-security` · `ai-team-dev-pt-hm-arkts-security` |
+| 调试与排障 | 定位手段成本分级、协作调试循环、平台日志读取 | `ai-team-dev-tool-debug-loop` |
 | 协作与交互 | 选项按钮规范、跨角色消息、报告事实源、冲突兜底、风险提示、用户协作成本优先 | `ai-team-tool-global-rule` · `ai-team-tool-report` |
 | **平台特化（`harmony`）** | 平台映射表、DevEco 路径探测、签名检查、设备错误码、ohosTest 测试、真机 UI 自动化、ArkTS 编码 / 性能 / 安全规范 | `skills/ai-team-dev/platform-map.md` <br>  · `ai-team-dev-pt-hm-build` · `ai-team-dev-pt-hm-arkts-coding-rules` <br>  · `ai-team-dev-pt-hm-arkts-performance` · `ai-team-dev-pt-hm-arkts-security` <br>  · `ai-team-dev-pt-hm-role-tester` · `ai-team-dev-pt-hm-role-reviewer` · `ai-team-dev-pt-hm-ui-test` |
 | 创作编排（`writing`） | S0-S4 阶段路由、五类角色接力、设定集单写多读、章节精简（brief）作跨章记忆、多口味读者团并行实例 | `ai-team-write` · `ai-team-write-pt-long` <br>  · `-role-editor` · `-role-architect` <br>  · `-role-writer` · `-role-reader` |
@@ -308,7 +308,7 @@ flowchart TD
 
 > 门禁：不得跳过前 3 项直接埋点；也不得停在代码推理就断言根因——推理只能提出假设，需运行时证据才能定性。
 
-> **平台特化（`harmony`）**：日志取 `hilog`；自动化复现用 `devecocli` / `hdc shell uinput` 驱动真机链路。实现见 `ai-team-tool-debug-loop` + `ai-team-dev-pt-hm-ui-test`。
+> **平台特化（`harmony`）**：日志取 `hilog`；自动化复现用 `devecocli` / `hdc shell uinput` 驱动真机链路。实现见 `ai-team-dev-tool-debug-loop` + `ai-team-dev-pt-hm-ui-test`。
 
 ### 5.7 自我优化
 
@@ -510,10 +510,10 @@ sequenceDiagram
 | `ai-team-tool-role-composer` | 角色组合器（从子目标反推角色组合） |
 | `ai-team-tool-report` | 文档沉淀规范（统一元信息模板） |
 | `ai-team-tool-auto-tune` | 自我优化（静默自检 + 维护变更日志） |
-| `ai-team-tool-debug-loop` | 协作调试循环（成本递增的定位手段） |
-| `ai-team-tool-minimal-code` | 极简编码规范（懒惰阶梯 / 根因修复 / 过度设计审查） |
-| `ai-team-tool-security` | 通用安全规范 |
-| `ai-team-tool-ui-ux` | UI 体验优化（防抖节流 + 四态管理） |
+| `ai-team-dev-tool-debug-loop` | 协作调试循环（成本递增的定位手段） |
+| `ai-team-dev-tool-minimal-code` | 极简编码规范（懒惰阶梯 / 根因修复 / 过度设计审查） |
+| `ai-team-dev-tool-security` | 通用安全规范 |
+| `ai-team-dev-tool-ui-ux` | UI 体验优化（防抖节流 + 四态管理） |
 | `ai-team-tool-web-read` | 网页需求文档读取（HTML→Markdown + 图片本地化） |
 
 **开发领域 · 鸿蒙平台特化角色（3，均带置信度）**
@@ -671,6 +671,17 @@ Copy-Item -Recurse ai-team* "$HOME\.agents\skills\"
 ---
 
 ## 十二、扩展指南：新增领域与平台
+
+> **编写任何 skill 时的「引用 vs 复制」判据**（避免两处各自演进，也避免为去重付出不必要的加载成本）：
+>
+> | 情形 | 选择 | 理由 |
+> |------|------|------|
+> | 使用方**本来就会加载**被引用文件 | **引用**（写「见 X 的 Y 节」） | 边际加载成本为 0，且零漂移 |
+> | 使用方**不需要**加载被引用文件 | **复制** + 指定权威方（注明「冲突时以 X 为准」） | 引用会引入额外加载成本；复制可接受，但必须明确谁说了算 |
+> | 被引用方**使用面更广** | **绝不反向引用** | 否则把加载成本摊给它的所有使用方 |
+> | 两处重叠但**职责不同**（如「执行顺序」vs「命令写法」） | **各留各的** + 写明**范围分工**（谁覆盖什么、未覆盖时查谁、不一致时按谁校准） | 这是交集、不是副本，强行合并会牺牲可读性；写成「权威归属」反而会错判——被引用方可能根本没覆盖该内容 |
+>
+> 典型：`standards/`（使用方必然加载 → 引用，已实测 5 类漂移）；`env E4` 与 `ui-test` 的设备命令（职责不同 → 各留各的 + 写明范围分工：本表覆盖的按本表、未覆盖的查 env、不一致时按 env 校准并**回填**）。
 
 领域与平台均为配置驱动，扩展**不需要修改内核或已有通用角色**。
 

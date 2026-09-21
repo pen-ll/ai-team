@@ -34,13 +34,7 @@ node <cli.js> ui --help     # 必须能正常输出；否则按 `ai-team-dev-pt-
 > **[门禁] 环境门槛只用能力探测**（见 `ai-team-dev-pt-hm-env` E5），**禁止**与硬编码版本阈值比较 —— IDE/SDK 版本号命名已跳变（本机 DevEco Studio = `26.0.0.821`，旧文档写作 `6.1.0`），比大小必然误判。
 > 任一能力探测失败 → 升级/换包，或走降级通道，并在报告记录**降级原因**。
 
-**查证一手来源**（怀疑参数/行为时先查，别猜）：
-
-```bash
-node <cli.js> docs search "<关键词>"     # 官方离线文档库（含 DevEco CLI 官方文档）
-node <cli.js> <command> --help           # 参数最权威来源
-DEVECO_CLI_DEBUG=1 node <cli.js> ...     # 打印底层命令映射（如截图实为 hdc snapshot_display + file recv），排查利器
-```
+**查证一手来源**（怀疑参数/行为时先查，别猜）：探索口径（`<command> --help` / `docs search` 官方离线文档库 / `DEVECO_CLI_DEBUG=1` 看底层命令映射，如截图实为 `hdc snapshot_display` + `file recv`）**见 `ai-team-dev-pt-hm-env` E6**（本 skill 不内联副本）。
 
 备用底层通道（CLI 不可用时降级）：`hdc shell uinput`（点击/滑动/输入）+ `hdc shell hilog`（日志）。
 > ⚠️ `uinput` 各版本语法不一且**本环境未实测**：降级前先 `hdc shell uinput -h` 确认可用与参数形态，并把降级原因写入报告。
@@ -58,7 +52,7 @@ DEVECO_CLI_DEBUG=1 node <cli.js> ...     # 打印底层命令映射（如截图�
 | 7 | 放开日志级别 | `hdc shell hilog -b D` | 不放开只能抓到 I 级以上日志，业务 debug 分支会丢失 |
 
 > 多设备时所有 CLI 命令追加 `--device <serial>`。
-> 设备层命令与 CLI 口径：需要时 `use_skill ai-team-dev-pt-hm-env`（E2 / E4）。
+> **设备层命令与 CLI 口径**：本表只给「执行顺序 + 门禁理由（含本 skill 实测踩过的坑）」——**本表已覆盖的命令按本表执行**；**本表未覆盖的命令 / 参数**（`ui` 之外的子命令、陌生参数等）→ `use_skill ai-team-dev-pt-hm-env`（E2 CLI 口径 / E4 设备命令 / **E6 探索口径**）。若发现本表与 env 对**同一命令**的描述不一致 → 按 env 校准，并把实测结论**回填** env（见 E6 回填门禁）。
 
 ## 命令表
 
