@@ -10,7 +10,7 @@ allowed-tools: Read, Glob, Grep, Agent, TeamCreate, SendMessage, AskUserQuestion
 
 # AI 多 Agent 协同通用编排内核
 
-> **框架版本：2.0** —— 全框架**统一版本号**（不是单个 skill 的版本，全部 skill 共享此号）。
+> **框架版本：2.1** —— 全框架**统一版本号**（不是单个 skill 的版本，全部 skill 共享此号）。
 
 ## 角色定位
 

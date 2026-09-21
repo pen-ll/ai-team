@@ -10,7 +10,7 @@ allowed-tools: Read, Glob, Grep, Agent, TeamCreate, SendMessage, AskUserQuestion
 
 # AI 多 Agent 协同 — 软件开发领域（`development`）
 
-> **框架版本：2.0** —— 全框架**统一版本号**（全部 skill 共享）。
+> **框架版本：2.1** —— 全框架**统一版本号**（全部 skill 共享）。
 
 ## 角色定位
 
