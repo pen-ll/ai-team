@@ -7,7 +7,7 @@
 把复杂任务拆给多个角色 Agent 接力完成：独立会话、交叉校验、置信度门禁、领域与平台均可插拔。
 
 [![License](https://img.shields.io/badge/License-MIT-yellow)](./LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.0-green)](#14-版本历史)
+[![Version](https://img.shields.io/badge/Version-2.1-green)](#14-版本历史)
 [![Skills](https://img.shields.io/badge/Skills-37-blue)](#八skill-清单)
 [![Domains](https://img.shields.io/badge/Domains-dev%20%C2%B7%20writing%20%2B%20generic-purple)](#13-已内置领域与平台)
 [![Platform](https://img.shields.io/badge/Platform-HarmonyOS-orange)](#13-已内置领域与平台)
