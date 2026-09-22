@@ -7,7 +7,7 @@
 把复杂任务拆给多个角色 Agent 接力完成：独立会话、交叉校验、置信度门禁、领域与平台均可插拔。
 
 [![License](https://img.shields.io/badge/License-MIT-yellow)](./LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.1-green)](#14-版本历史)
+[![Version](https://img.shields.io/badge/Version-2.2-green)](#14-版本历史)
 [![Skills](https://img.shields.io/badge/Skills-37-blue)](#八skill-清单)
 [![Domains](https://img.shields.io/badge/Domains-dev%20%C2%B7%20writing%20%2B%20generic-purple)](#13-已内置领域与平台)
 [![Platform](https://img.shields.io/badge/Platform-HarmonyOS-orange)](#13-已内置领域与平台)
@@ -96,6 +96,7 @@ ai-team（领域无关内核 / 总 PM）
 
 | 版本 | 范围 | 主题 | 关键变化 |
 |------|------|------|----------|
+| **2.2** | 2026-09-22 起 | **跨角色协作机制：审查队列 + 闭环门禁 + 返工台账** | **信道**：保留子 Agent 直接互发（不引入 PM 中转），消息只传「问题 + 证据位置」；**审查队列串行**（`global-rule` §十一 11.1）：一次只放行一个审查维度、顺序按破坏力降序，`手动确认` 可授权并行（4 条准入），纯只读维度不受约束；**闭环门禁**（11.2）：完成信号携带 `未闭环问题数`，> 0 不算完成，放行前断言「前序定稿 + 未闭环=0 + `depends_on` 定稿」；**返工台账**（11.3）：`issue-ID` + 轮次落报告，`未登记 = 未发生`；**收敛**（11.4）改由台账触发（≥3 / ≥5 → 提出方直接问用户）；`tool-report` 新增 `状态` / `版本` 与「落盘一致性」 |
 | **2.1** | 2026-09-20 起 | **Skill 体系审计整改** | **分层纠偏**：基座去领域化（`role-maker` 移除 4 处 `ai-team-dev-tool-*` 具名引用、改条件式加载，dev 侧补回 `minimal-code` / `security`，dev 行为不变）；**单一事实源**：`tool-report` 报告模板章节下沉为指针（177 → 129 行）、`ai-team-dev/README` 去重；**路由一致性**：`platform-map` 新增「UI 驱动（按需）」列、tester 由硬编码改查表加载；**体积规范放宽**：单文件门禁 200 → 250 行（上限 300）；拆分 `arkts-coding-rules`（358 → 269 行）+ 新增 `arkts-v2-reactive`；全体系清除「上游调用关系」描述 |
 | **2.0** | 2026-09-18 ～ 09-19 | **领域无关化 + 角色层通配化重构** | 第二个**异质领域**（写作）落地；角色层收敛为**三角色原型**（`planner` / `maker` / `reviewer`）+ 领域扩展，**废除「轻量 / 标准 / 完整」硬路由**改为**用户多选编排**；审查者按**维度多实例**并行、互不合并；领域标准资产化（`standards/` 作单一事实源） |
 | **1.0** | ～ 2026-09-17 | **开发领域起步** | 内核 + 开发双领域；固定四角色接力；复杂度三档硬路由；鸿蒙平台特化层 |

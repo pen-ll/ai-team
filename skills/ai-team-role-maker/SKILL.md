@@ -175,9 +175,11 @@ for 项-N in 清单(按顺序):
 
 > **[门禁] 完成通知模式**：`手动确认` 时先 `ask_followup_question` 向用户展示摘要 / 验收标准符合情况 / 置信度 / 产出路径（选项固定 `["确认完成，继续下一步"]`，末位自定义项由 global-rule 追加），确认后才发信号；`全自动` 直接发。
 
+> **[门禁] 完成信号必须携带**：报告 `状态`（编辑中 / 定稿）、`版本 v{N}`、**`未闭环问题数: {n}`**（引用台账 issue-ID）。**n > 0 → 不算完成**，编排方不得放行下游（`global-rule` §十一 11.2）。
+
 ```
 send_message(type="message", recipient="main",
-  content="实现完成 | 原型:maker | 变体:{变体} | 平台/形态:{platform|form} | 置信度:{XX}% | 产出:{artifact_dir}/{变体}-report.md + {N 个产物} | 摘要:{一句话}",
+  content="实现完成 | 原型:maker | 变体:{变体} | 平台/形态:{platform|form} | 未闭环问题数:{n} | 报告状态:定稿 v{N} | 置信度:{XX}% | 产出:{artifact_dir}/{变体}-report.md + {N 个产物} | 摘要:{一句话}",
   summary="实现完成，置信度{XX}%")
 ```
 
@@ -192,7 +194,8 @@ send_message(type="message", recipient="main",
 | 与 reviewer 无法一致 | 报 planner 裁决（口径权在 planner） |
 | 说明实现要点 | 可主动 `send_message` 给对应 reviewer 实例 |
 | 需求 / 口径疑问 | 直接 `ask_followup_question` 问用户，或报 planner |
-| **返工计数（[门禁]）** | 每次因 reviewer / tester 反馈而**修改产出或报告** → 按 `global-rule` §十二 计数，并在回信中携带 `返工轮次: {N}/5`；**N ≥ 5 → 立即停止一切修订与返工**，`send_message` 上报编排方等待用户裁决 |
+| **[门禁] 返工必须登记台账** | 每次因 reviewer / tester 反馈而修改产出 → 在本报告 `## 修复记录` 追加一行 `issue-ID \| 修复版本 \| 改动摘要 \| 状态`（**引用对方给的 issue-ID，不新建 ID**）；**未登记 = 未发生**（`global-rule` §十一 11.3） |
+| **[门禁] 超限即停** | 同一 issue 台账「轮次」达 3、或本报告「修复记录」达 5 → **立即停止修订**，等待用户裁决（裁定前不得继续改，`global-rule` §十一 11.4） |
 
 ## 配置
 
