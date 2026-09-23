@@ -79,7 +79,7 @@ ask_followup_question(
     { id: "storage",  question: "数据存储方式？",
       options: [<方案一，按下方生成规则填入>， <方案二>] },
     { id: "template", question: "编码模板？",
-      options: ["官方V2状态Demo", "V2自定义模板", "无需模板AI自行发挥"] }
+      options: ["官方V2状态Demo", "V2 业务自定义模板", "无需模板AI自行发挥"] }
   ]
 )
 ```
@@ -90,7 +90,7 @@ ask_followup_question(
 |----------|----------|
 | 由AI决定 | **忽略** `state` / `storage` / `template` 作答，按「自动推断规则」执行；coder-report.md 标注"由AI决定" |
 | 用户介入 | 直接采用同轮 3 项作答，**不再二次询问** |
-| 自定义详细描述 | 解析用户自由描述（如"用 V1 + Preferences + V2自定义模板"）后采用，不确定处按自动推断规则补全 |
+| 自定义详细描述 | 解析用户自由描述（如"用 V1 + Preferences + V2 业务自定义模板"）后采用，不确定处按自动推断规则补全 |
 
 **`storage` 选项生成规则**（AI 结合需求文档填入两案）：
 
@@ -102,7 +102,7 @@ ask_followup_question(
 **`template` 作答后的动作**：
 
 - "官方V2状态Demo" → `use_skill ai-team-dev-pt-hm-template-v2`，并 `use_skill ai-team-dev-pt-hm-arkts-v2-reactive`（V2 响应式数据能力）
-- "V2自定义模板" → 按模板实现；涉及 `@ObservedV2` / `@Trace` 数据链路时 `use_skill ai-team-dev-pt-hm-arkts-v2-reactive`
+- "V2 业务自定义模板" → `use_skill ai-team-dev-pt-hm-template-v2-custom`，并 `use_skill ai-team-dev-pt-hm-arkts-v2-reactive`（V2 响应式数据能力）
 - "无需模板AI自行发挥" → 按需求描述自由编码；若采用 V2 状态管理，则 `use_skill ai-team-dev-pt-hm-arkts-v2-reactive`
 - 末位自定义项 / 自由文本 → AI 据描述判断走哪个模板
 
@@ -111,7 +111,7 @@ ask_followup_question(
 | 技术选型 | 优先选择 | 说明 |
 |----------|----------|------|
 | 状态管理 | **V2 优先**（@ComponentV2 + @ObservedV2 + @Trace/@Local/@Param/@Require） | V2 是鸿蒙 Next 推荐的新版状态管理，默认首选。**AI自行决定也优先V2**。仅当用户明确要求 V1、项目已有 V1 代码需兼容、或 V2 无法实现需求时才降级 V1 |
-| 编码模板 | 根据需求选择 | 官方V2状态Demo / V2自定义模板 / 无需模板AI自行发挥 |
+| 编码模板 | 根据需求选择 | 官方V2状态Demo / V2 业务自定义模板 / 无需模板AI自行发挥 |
 | 数据存储 | 根据需求场景 | preferences（轻量键值对）/ relationalStore（关系型）/ 内存存储 |
 
 #### Token 优化：基于需求文档自动推断技术选型
@@ -122,7 +122,7 @@ ask_followup_question(
 |----------|--------------------------|----------|
 | 状态管理 | 默认 V2（无特殊约束） | V2，不询问。若 V2 无法实现需求则降级 V1 |
 | 数据存储 | 需求文档"数据存储方案"字段 | 直接采用需求文档建议，不询问 |
-| 编码模板 | 需求复杂度 + 是否有特殊 UI 要求 | 简单 CRUD → "无需模板AI自行发挥"；复杂业务 → "V2自定义模板"；不询问 |
+| 编码模板 | 需求复杂度 + 是否有特殊 UI 要求 | 简单 CRUD → "无需模板AI自行发挥"；复杂业务 → "V2 业务自定义模板"；不询问 |
 
 > 上述推断**只在用户于 `mode` 题选「由AI决定」或自定义描述时生效**；选「用户介入」则一律以用户同轮作答为准。
 > 无论哪种模式，选型交互**只有一轮**（同一次 4 题 `ask_followup_question`），**禁止**先问主导权、再问具体项。
@@ -147,14 +147,6 @@ ask_followup_question(
 - 检查是否使用了固定 px/vp 宽度 + margin 导致多列布局总宽度超出 100%
 - 检查按钮网格是否用 `layoutWeight` 自适应而非 `width('25%')` 等固定百分比
 - 检查需要一屏完整展示的布局是否确保不溢出
-
-### 复现手段（补充领域扩展 §二：返工模式分流）
-
-排查 bug 需复现时**优先 AI 自主复现**：`use_skill ai-team-dev-pt-hm-ui-test` 驱动链路（`ui layout` → `ui click` / `ui text`）并抓日志与崩溃栈，**不要默认把复现甩给用户**。
-
-仅当无法自主驱动时才交用户手操：需人脸 / 支付 / 外部 App 交互、依赖用户独占账号态等。
-
-> 日志取用：清缓冲 / 崩溃扫描命令见 `ai-team-dev-pt-hm-env` E4；放开日志级别与等待策略见 `ai-team-dev-pt-hm-ui-test`。
 
 ### ArkTS 语法校验 — DevEco MCP LSP（门禁，不可跳过）
 
@@ -236,6 +228,14 @@ use_skill ai-team-dev-pt-hm-build
 
 > 鸿蒙特有项与通用检查清单合并计算置信度。
 
+### 复现手段（**分支，非主线步骤** —— 返工 / 排查 bug 时使用；补充领域扩展 §二：返工模式分流）
+
+排查 bug 需复现时**优先 AI 自主复现**：`use_skill ai-team-dev-pt-hm-ui-test` 驱动链路（`ui layout` → `ui click` / `ui text`）并抓日志与崩溃栈，**不要默认把复现甩给用户**。
+
+仅当无法自主驱动时才交用户手操：需人脸 / 支付 / 外部 App 交互、依赖用户独占账号态等。
+
+> 日志取用：清缓冲 / 崩溃扫描命令见 `ai-team-dev-pt-hm-env` E4；放开日志级别与等待策略见 `ai-team-dev-pt-hm-ui-test`。
+
 ## 安全与性能
 
 **[门禁] 按需加载，禁止开局全量灌入** ：
@@ -263,6 +263,7 @@ build_skill: ai-team-dev-pt-hm-build
 env_skill: ai-team-dev-pt-hm-env    # 需要触碰环境时 use_skill 加载（路径/CLI/版本/命令的事实唯一来源）
 template_skills:
   v2: ai-team-dev-pt-hm-template-v2
+  v2_custom: ai-team-dev-pt-hm-template-v2-custom        # 业务自定义模板入口（分派 standard / mvvm / request 子模板）
 v2_reactive_skill: ai-team-dev-pt-hm-arkts-v2-reactive   # 选 V2 状态管理 / V2 模板时按需加载
 security_skill: ai-team-dev-pt-hm-arkts-security
 performance_skill: ai-team-dev-pt-hm-arkts-performance
