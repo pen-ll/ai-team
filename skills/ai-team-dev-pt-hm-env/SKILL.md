@@ -52,16 +52,41 @@ SDK="/Applications/DevEco-Studio.app/Contents/sdk"                              
 
 ## E2 工具链口径（DevEco CLI）
 
+**[门禁] 官方包唯一**：只用 `@deveco/deveco-cli`（官方《下载与安装》唯一推荐的包，裸包名 = 官方最新版）。`@deveco-test/*`（测试通道）与 `hmos-deveco-cli`（HarmonyOS 2in1 专供）**均非官方通道，禁止使用**。
+
 | 项 | 值 |
 |------|-----|
-| 首选包 | `@deveco-test/deveco-cli`（含 `ui` / `check` / `signature` / `auth`） |
-| 禁用包 | `@deveco/deveco-cli` —— 实测 1.2.0 命令集仅 `build/run/update/device/emulator/skills/log/create/init/serve/docs`，**无 `ui`、无 `check`**；挂它的 `serve mcp` 必然每次 20s 拿不到诊断 |
-| 安装 | `npm install -g @deveco-test/deveco-cli@latest --no-fund --no-audit` |
-| 解析路径 | `node` = 绝对路径（E1 的 `$NODE` 或 `which node`）；`cli.js` = `$(npm root -g)/@deveco-test/deveco-cli/dist/cli.js` |
-| **[门禁] 能力自检** | `node <cli.js> --help \| grep -E "^\s+(check\|ui)\b"` 必须**同时命中**；否则升级/换包，**不得继续依赖 MCP LSP** |
-| CLI 不稳定时 | `npx -y @deveco-test/deveco-cli@latest <cmd>`（缓存目录 hash 与包名绑定，可用） |
+| 包 | `@deveco/deveco-cli`（裸包名 = 官方最新版） |
+| 稳定通道 | `@deveco/deveco-cli@stable`（官方可选标签；构建可能落后于最新版） |
+| 安装 / 升级 | **[门禁] 迁移式安装**（见下；安装与升级同一命令，幂等） |
+| 解析路径 | `node` = 绝对路径（E1 的 `$NODE` 或 `which node`）；`cli.js` = `$(npm root -g)/@deveco/deveco-cli/cli.js` |
+| **[门禁] 能力自检** | `node <cli.js> --help \| grep -E "^\s+(check\|ui)\b"` 必须**同时命中**；不命中按下方门禁处置，**不得继续依赖 MCP LSP** |
+| CLI 不稳定时 | `npx -y @deveco/deveco-cli <cmd>` |
 
-> **禁止**用 `find ~/.npm/_npx -path "*/@deveco/deveco-cli/dist/cli.js" … | head -1` 定位 CLI —— 会命中旧包且无能力校验。
+> **[门禁] 不写死版本号与子命令清单**：包能力随构建持续变化，写死的版本结论必然腐烂（本文件曾据此长期把官方包误列为禁用）—— 判据**只用上表「能力自检」**，需要什么能力就自检什么。
+
+**[门禁] 迁移式安装（幂等，可重复执行；安装即升级）**：
+
+```bash
+# ① 探测 bin 归属（bin 被其它包占用会使 ③ 直接 EEXIST 失败）
+#    CLI_BIN=$(command -v devecocli) → realpath 反解包名：
+#      属于 @deveco/deveco-cli → 直接进 ③
+#      属于其它包 → 执行 ②
+#      不在 node_modules 下（非 npm 安装）→ 无法自动处理 → ask_followup_question
+# ② 卸载旧包（仅 ① 判定为其它包时）
+npm uninstall -g @deveco-test/deveco-cli --no-fund --no-audit
+# ③ 安装 / 升级（不带版本号 = 装官方最新版；已是最新版时为幂等 no-op，故无需判断"是否已安装"）
+npm install -g @deveco/deveco-cli --no-fund --no-audit
+# ④ 复跑上表能力自检
+```
+
+> `cli.js` 是**启动器**：真正逻辑在同级依赖 `@deveco/deveco-cli-common/dist/cli.js`。`--omit=optional` 或包管理器裁剪 optionalDependencies 会使其缺失，报 `implementation package "…" is not installed` → 按 ③ 重装（**勿加 `--omit=optional`**）。
+
+> **[门禁] 禁止 `devecocli update`**：其语义是"更新**它自己**"，目标 = 该 bin 内嵌的包名 + tag，与"你以为在用哪个包"无关。bin 属于非官方包时会把环境换成另一套**不兼容的构建架构**（入口形态改变，写死的 MCP 绝对路径随即失效）。**升级一律用 ③**——效果等价，但不依赖 PATH 上是谁。
+
+> **[门禁] 能力不足时不得自行换包 / 装包**：自检不通过 → 按 ③ 升级官方包 → 仍不通过 → **`ask_followup_question` 给出推荐选项交用户裁决**；禁止引入本表之外的其它 CLI 包。
+
+> **禁止**用 `find ~/.npm/_npx … | head -1` 定位 CLI —— `_npx` 缓存可并存多个同 bin 包，`head -1` 命中哪个纯属偶然且必然跳过能力校验。定位一律走 ① + 能力自检。
 
 ### E2.1 MCP 配置模板（`deveco-mcp`）
 
@@ -95,12 +120,13 @@ SDK="/Applications/DevEco-Studio.app/Contents/sdk"                              
 
 | 现象 | 判定 | 处置 |
 |------|------|------|
-| 工具未注册 / 调用报「not found」 | 服务未启动或包无该能力 | 按 E2 换包 + E2.1 修配置 → 重启 IDE |
-| 返回 `Project is syncing, please retry in 10 seconds`（`isError: true`） | **预期预热行为，不是失败** | 等 15s 重试一次即可（实测第 2 次 703ms 返回诊断）。**不得**据此判定 MCP 不可用 |
-| 返回 `received no diagnostics within 20000ms from LSP` | 服务与路径**都正常**，是 LSP 20s 内未产出诊断 —— 实测为**旧包（`@deveco/deveco-cli` 1.2.0）能力缺失** | 按 E2 能力自检；**最多重试 1 次**（共 2 次），仍超时 → 降级编译验证并登记原因，**不得静默跳过** |
+| 工具未注册 / 调用报「not found」 | 服务未启动或无该能力 | 按 E2 迁移式安装 + E2.1 修配置 → 重启 IDE |
+| 返回 `Project is syncing, please retry in 10 seconds`（`isError: true`） | **预期预热行为，不是失败** | 等 15s 重试一次即可，**不得**据此判定 MCP 不可用 |
+| 返回 `received no diagnostics within 20000ms from LSP` | 服务与路径**都正常**，是 LSP 20s 内未产出诊断 | **先按 E2 能力自检**：命中 `check`/`ui` → 不是包的问题，直接按本行重试策略处置；不命中 → 走 E2 迁移式安装。**最多重试 1 次**（共 2 次），仍超时 → 降级编译验证并登记原因，**不得静默跳过** |
+| 返回 `implementation package "…" is not installed` | wrapper 的 impl 子包缺失（被裁剪 optionalDependencies） | 按 E2 ③ 重装，**勿加 `--omit=optional`** |
 | `check lint` 返回 `Files checked: 0` | 未配 lint config，扫不到文件 | 不可单独作为语法门禁替代品，只作辅助 |
 
-> 实测基线（2026-09-20，DevEco Studio 26.0.0）：换包后 `initialize` 288ms、第 1 次 `check` 返回 syncing、第 2 次 **703ms** 返回 `xxx.ets => no diagnostics`。
+> **[门禁] 换包 / 升级后必须复跑能力自检，并对 E1-E5 的实测结论抽样复测；有变化则回填**（回填门禁见 E6）。
 
 ## E3 SDK 版本决策（[门禁] 禁止猜版本号）
 

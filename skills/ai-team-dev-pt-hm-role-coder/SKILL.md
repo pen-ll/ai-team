@@ -175,7 +175,7 @@ ask_followup_question(
 | 预热中（**不是失败**） | 返回 `Project is syncing, please retry in 10 seconds` | 等 15s 后重试一次即正常（实测第 2 次 <1s 返回诊断），**不要**据此换包或跳过 |
 | 无返回（超时） | 返回 `received no diagnostics within 20000ms` | **[门禁] 最多重试 1 次（共 2 次）**；仍超时 → 降级到编译验证，并在 `coder-report.md` 登记「LSP 未生效 + 原因」 |
 
-> **[门禁] 禁止**用 `find ~/.npm/_npx … "@deveco/deveco-cli" … | head -1` 定位 CLI —— 会命中**无 `check`/`ui` 能力的旧包**（真实事故：MCP LSP 每次 20s 超时）。包名与自检命令以 `ai-team-dev-pt-hm-env` E2 为准。
+> **[门禁] 禁止**用 `find ~/.npm/_npx … | head -1` 定位 CLI —— `_npx` 缓存可并存多个同 bin 包，必然跳过能力校验（真实事故：命中无 `check`/`ui` 能力的包 → MCP LSP 每次 20s 超时）。包名、安装与能力自检命令以 `ai-team-dev-pt-hm-env` E2 为准。
 > **[门禁] 不得静默跳过**：任何跳过都必须落到 `coder-report.md` 的「已知限制」，并在置信度评估中如实扣分。
 
 ### 编译验证（覆盖通用 coder 第五步）

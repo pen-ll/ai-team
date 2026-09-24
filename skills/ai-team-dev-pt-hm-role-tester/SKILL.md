@@ -36,7 +36,7 @@ description: |
 
 | 前序任务 | 测试目录 | 编译命令 |
 |----------|----------|----------|
-| 新项目 | `entry/src/ohosTest/ets/test/` | `npx @deveco-test/deveco-cli@latest build --modules entry@ohosTest` |
+| 新项目 | `entry/src/ohosTest/ets/test/` | `npx -y @deveco/deveco-cli build --modules entry@ohosTest` |
 | 新 HAR/HSP 模块 | `<module>/src/ohosTest/ets/test/` | `genOnDeviceTestHap` |
 
 > **关键原则**：模块自己的单元测试必须留在模块自己的 `src/ohosTest/` 目录下，不能写到 entry 里。
@@ -53,7 +53,7 @@ description: |
    - 若有错误则自动修复后重新校验，直到无错误
    - 失败处置（工具未注册 / 无返回超时 / 重试上限）**按 `ai-team-dev-pt-hm-env` E2.2 分类执行**，环境路径与包口径见 E2 / E2.1（**禁止内联副本**）
 4. 编译主项目：**[门禁] 必须显式 `use_skill ai-team-dev-pt-hm-build`**（编译命令、DEVECO_SDK_HOME 路径探测均由 build skill 提供，禁止自行猜测/内联），确保 BUILD SUCCESSFUL
-5. 编译测试 HAP：`npx @deveco-test/deveco-cli@latest build --modules <module>@ohosTest`
+5. 编译测试 HAP：`npx -y @deveco/deveco-cli build --modules <module>@ohosTest`
 6. 安装并运行测试：`hdc install` + `aa test`
 7. 屏幕锁定时报错 `10106102`，弹交互按钮让用户解锁后继续步骤 6
 8. 测试失败时先区分问题归属（同通用 tester「跨角色沟通协议」）：
@@ -121,7 +121,7 @@ export default function testsuite() { XxxTest() }
 
 | 步骤 | 命令 |
 |------|------|
-| 1. 编译测试 HAP | `npx @deveco-test/deveco-cli@latest build --modules <module>@ohosTest`（HAP 模块如 entry 同命令） |
+| 1. 编译测试 HAP | `npx -y @deveco/deveco-cli build --modules <module>@ohosTest`（HAP 模块如 entry 同命令） |
 | 2. 安装主 HAP（仅首次） | `hdc install <module>/build/default/outputs/default/<module>-default-signed.hap` |
 | 3. 安装测试 HAP | `hdc install <module>/build/default/outputs/ohosTest/<module>-ohosTest-signed.hap` |
 | 4. 运行测试 | `hdc shell aa test -b <bundleName> -m <module>_test -s unittest OpenHarmonyTestRunner` |

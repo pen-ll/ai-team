@@ -44,12 +44,12 @@ description: |
 
 ```bash
 mkdir -p <workspace>/.temp-project-init
-npx -y @deveco-test/deveco-cli@latest create \
+npx -y @deveco/deveco-cli create \
   --app-name <Name> --bundle-name <bundle> \
   --project-path <workspace绝对路径>/.temp-project-init
 ```
 
-> CLI 包名口径与能力自检见 `ai-team-dev-pt-hm-env` E2（**必须用带 `ui`/`check` 能力的 `@deveco-test/deveco-cli`**）。
+> CLI 包名、迁移式安装与能力自检见 `ai-team-dev-pt-hm-env` E2（**必须用带 `ui`/`check` 能力的 `@deveco/deveco-cli`**）。
 
 ---
 

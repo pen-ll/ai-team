@@ -10,7 +10,7 @@ allowed-tools: Read, Glob, Grep, Agent, TeamCreate, SendMessage, AskUserQuestion
 
 # AI 多 Agent 协同 — 软件开发领域（`development`）
 
-> **框架版本：2.2** —— 全框架**统一版本号**（全部 skill 共享）。
+> **框架版本：2.3** —— 全框架**统一版本号**（全部 skill 共享）。
 
 ## 角色定位
 
@@ -210,7 +210,7 @@ task(
 ## 阶段 3：收尾
 
 1. PM 汇总各角色结果，向用户报告（给结论与路径，**不复制报告内容**；有多维度审查分歧时**保留分歧项**）
-2. **[可选流程复盘]** 弹出「本次流程是否复盘？`["要复盘", "不用"]`」（默认「不用」）；用户选「要复盘」→ PM 按 `ai-team-tool-auto-tune` 执行（**必须在会话回收之前完成**：先向各角色收集流程层反馈，再产出 `optimization-report.md` 并向用户展示建议摘要）
+2. **[可选流程复盘]** 弹出「本次流程是否复盘？`["要复盘", "不用"]`」（默认「不用」）；用户选「要复盘」→ PM 按 `ai-team-tool-auto-tune` 执行（**必须在会话回收之前完成**：先向各角色收集流程层反馈 → 过「反馈确认门禁」向用户确认反馈口径后方可产出 `optimization-report.md`）
 3. 会话回收：
    ```
    send_message(type="shutdown_request", recipient="{各 agent}")

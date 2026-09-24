@@ -2,6 +2,17 @@
 
 > 本文件只记录**里程碑级**变更（新增能力与机制调整），面向使用者。**每条只写「改了什么」**——缘由、证据与实现细节见 git 提交。
 
+## 2.3 · 2026-09-23 · 鸿蒙工具链口径纠正：统一到官方 `@deveco/deveco-cli`
+
+- **包口径反转**：`pt-hm-env` E2 由「首选 `@deveco-test/deveco-cli`、禁用 `@deveco/deveco-cli`」改为**官方包 `@deveco/deveco-cli` 唯一**（裸包名 = 官方最新版）；`@deveco-test/*` 与 `hmos-deveco-cli` 明确为非官方通道
+- **迁移式安装**：E2 安装口径重写为「①bin 归属探测（realpath 反解包名）→ ②卸载旧包 → ③`npm install -g @deveco/deveco-cli`（安装即升级、幂等）→ ④能力自检」，覆盖同 bin 包占用导致的 `EEXIST`
+- **入口形态与路径**：新包 `cli.js` 为**启动器**（逻辑在同级 `@deveco/deveco-cli-common`），E2 解析路径 / E2.1 MCP 模板同步；E2.2 新增 `implementation package "…" is not installed` 失败分类
+- **禁止 `devecocli update`**：其目标为 bin 内嵌包名 + tag，不可信；升级一律走 ③ 显式安装
+- **新增门禁「能力不足时不得自行换包 / 装包」**：自检不通过 → 升级官方包 → 仍不通过 → `ask_followup_question` 交用户裁决
+- **禁令解绑包名**：`env` / `pt-hm-role-coder` 的 `find ~/.npm/_npx … | head -1` 禁例去掉硬编码路径；E2.2 超时归因改为「先能力自检再判定」
+- **基线补全**：E2.2 新增工具链基线（`@deveco/deveco-cli@1.3.4` 能力集 + 入口形态），升级后须复测回填
+- **下游去内联**：`pt-hm-role-tester` / `pt-hm-project-init` 的 `npx` 包名同步为官方包
+
 ## 2.2 · 2026-09-22 · 跨角色协作机制：审查队列 + 闭环门禁 + 返工台账
 
 - **信道**：保留子 Agent **直接互发消息**（不引入 PM 中转）；跨角色消息只传「问题 + 证据位置」，不复制正文

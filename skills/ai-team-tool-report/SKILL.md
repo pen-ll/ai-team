@@ -24,6 +24,7 @@ description: |
 |------|--------------|
 | 通用（`领域=generic`） | `docs/ai-team/{任务标识}` |
 | 开发（`领域=development`） | `docs/ai-team-dev/{任务标识}` |
+| 测试（`领域=qa`） | `docs/ai-team-qa/{任务标识}` |
 | 写作（`领域=writing`） | `docs/ai-team-write/{任务标识}` |
 
 > artifact 目录（`brain/xxx/docs/...`）仅作为临时工作区，不应作为最终产出物路径。
@@ -49,8 +50,8 @@ mkdir -p ${workspaceFolder}/{artifact_dir}
 ```markdown
 ## 元信息
 - 角色：{角色名}
-- 领域：{generic/development/writing}
-- 平台/环境：{harmony/ios/android/web/server/...}   仅开发领域
+- 领域：{generic/development/qa/writing}
+- 平台/环境：{harmony/ios/android/web/server/...}   仅开发 / 测试领域
 - 任务标识：{slug}-{YYMMDD}（如 refactor-260901）   取自注入参数 `task_id`
 - 需求来源：{本次上游产出路径}（各领域取该领域蓝图文档；具体路径由领域角色 skill 约定）
 - 状态：{编辑中|定稿}
@@ -63,9 +64,9 @@ mkdir -p ${workspaceFolder}/{artifact_dir}
 
 | 字段 | 必填 | 说明 |
 |------|------|------|
-| 角色 | ✅ | 角色标识（通用：角色名；开发：designer/coder/tester/reviewer） |
-| 领域 | ✅ | `generic` / `development` |
-| 平台/环境 | 仅 `development` | 目标运行环境标识；通用领域**省略此字段** |
+| 角色 | ✅ | 角色标识（通用：角色名；开发：designer/coder/tester/reviewer；测试：test-planner/runner） |
+| 领域 | ✅ | `generic` / `development` / `qa` |
+| 平台/环境 | 仅 `development` / `qa` | 目标运行环境标识；通用领域**省略此字段** |
 | 任务标识 | ✅ | 本次任务的目录标识，格式 {主题slug}-{YYMMDD}（如 refactor-260901），同时作为产出物子目录名，避免同 workspace 多任务互相覆盖/污染 |
 | 需求来源 | ✅ | 上游文档路径（designer 跳过此项） |
 | 状态 | ✅ | `编辑中` / `定稿`；**只有「定稿」才可作为下游输入** |
@@ -108,6 +109,10 @@ mkdir -p ${workspaceFolder}/{artifact_dir}
 
 各报告（`designer-report.md` / `coder-report.md` / `coder-report-task-{N}.md` / `tester-report.md` / `reviewer-report.md` / `web-req-report.md`）的章节结构由**对应领域角色 skill 定义**，本节不重复。
 
+### 测试领域（`领域=qa`）
+
+各报告（`test-cases.md` / `test-plan.md` / `test-report.md`）与证据目录（`evidence/`）的结构由**对应领域角色 / 工具 skill 定义**，本节不重复。
+
 ### 写作领域（`领域=writing`）
 
 各报告（`editor-report.md` / `writer-report.md` / `critic-report-ch{N}.md` / `reader-report-ch{N}.md` / `market-report.md` / `commercial-report.md`）与设定集五件套的章节结构由**对应领域角色 skill 定义**，本节不重复。
@@ -134,7 +139,7 @@ mkdir -p ${workspaceFolder}/{artifact_dir}
 | designer | 需求文档 | `{artifact_dir}/designer-report.md` |
 | 动态角色 | 角色报告 | `{artifact_dir}/{role}-report.md` |
 
-### 开发领域 / 写作领域
+### 开发领域 / 测试领域 / 写作领域
 
 产出物路径由**各领域角色 skill 的配置段**声明（`artifact_path` / `item_report_pattern` 等），本节不重复；目录一律为 `{artifact_dir}`。
 

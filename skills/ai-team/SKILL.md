@@ -10,7 +10,7 @@ allowed-tools: Read, Glob, Grep, Agent, TeamCreate, SendMessage, AskUserQuestion
 
 # AI 多 Agent 协同通用编排内核
 
-> **框架版本：2.2** —— 全框架**统一版本号**（不是单个 skill 的版本，全部 skill 共享此号）。
+> **框架版本：2.3** —— 全框架**统一版本号**（不是单个 skill 的版本，全部 skill 共享此号）。
 
 ## 角色定位
 
@@ -39,15 +39,16 @@ allowed-tools: Read, Glob, Grep, Agent, TeamCreate, SendMessage, AskUserQuestion
 收到用户问题后，**第一步**先判定领域（在创建团队前完成）：
 
 1. 读取 `read_file("{skills_dir}/ai-team/domain-map.md")`（唯一允许读取的路由元数据）
-2. 用「触发特征」列匹配用户意图：
+2. 用「触发特征」列匹配用户意图（**触发词交叠时按该文件「触发协调」节判据区分**）：
    - 命中 `development`（编码/开发/bug/功能/模块等）→ `use_skill ai-team-dev`，由开发领域 PM 完整接管，本内核不再介入
+   - 命中 `qa`（按用例验证/跑用例/真机测试/测试报告/缺陷单等）→ `use_skill ai-team-qa`，由测试领域 PM 完整接管，本内核不再介入
    - 命中其他已注册领域 → 委托对应领域 PM
    - 全部未命中 → 标记为 `generic`，进入阶段 1 通用动态编排
 3. 判定后一句话告知用户路由结果（如"这是复杂调研问题，我将组建协作团队来处理"），锚定预期
 
 > **[门禁] 必须在 spawn 任何角色前完成领域判定。** 用户可随时覆盖判定结果（如"别走开发流程，直接帮我分析"）。
 >
-> **触发协调**：本内核聚焦通用协作表达（复杂问题、多角色、多专家、一起解决、帮我分析/策划/调研等）；开发专属关键词优先命中 `ai-team-dev`，避免两入口争抢。
+> **触发协调**：本内核聚焦通用协作表达（复杂问题、多角色、多专家、一起解决、帮我分析/策划/调研等）；领域专属关键词优先命中对应领域 PM（开发 `ai-team-dev` / 测试 `ai-team-qa`），避免多入口争抢。**判据以 `domain-map.md`「触发协调」节为唯一事实源。**
 
 ## 阶段 0.2：确定任务标识
 
@@ -116,7 +117,7 @@ task(
 )
 ```
 
-> `变体` 为空（generic 无领域扩展）；领域任务由领域 PM 按 `role-registry.md` 注入 `变体`。
+> `变体` 为空（generic 无领域扩展）；领域任务由领域 PM 按其角色清单注入 `变体`（角色可选的领域见其 `role-registry.md`，角色固定的领域内联在入口，如 `ai-team-qa`）。
 > 计划者为预设前置角色，PM 直接按模板 spawn，**无需加载 `ai-team-tool-role-composer`**（1.0-A 仅做预估展示，权威拆解归计划者）。
 > **[门禁] PM 不读取报告全文**，仅依据完成信号进入 1.2。
 > 领域扩展（如 `ai-team-dev-role-designer` / `ai-team-write-role-editor`）由计划者「第零步：领域适配」自行加载，PM 不介入。
@@ -249,7 +250,7 @@ task(
 ## 阶段 4：收尾
 
 1. PM 汇总所有角色结果，向用户报告最终状态
-2. **[可选流程复盘]** 弹出「本次流程是否复盘？`["要复盘", "不用"]`」（默认「不用」）；用户选「要复盘」→ PM 按 `ai-team-tool-auto-tune` 执行（**必须在会话回收之前完成**：先向各角色收集流程层反馈，再产出 `optimization-report.md` 并向用户展示建议摘要）
+2. **[可选流程复盘]** 弹出「本次流程是否复盘？`["要复盘", "不用"]`」（默认「不用」）；用户选「要复盘」→ PM 按 `ai-team-tool-auto-tune` 执行（**必须在会话回收之前完成**：先向各角色收集流程层反馈 → 过「反馈确认门禁」向用户确认反馈口径后方可产出 `optimization-report.md`）
 3. 执行会话回收：
    ```
    send_message(type="shutdown_request", recipient="{各 agent}")
